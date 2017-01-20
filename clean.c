@@ -31,34 +31,35 @@ void dosomething(TString chan ="2e2mu",bool cate_vbf =false,bool onshell=false){
 		}
 
 	gStyle->SetOptStat(0);
-	double dcbPara_2e2mu_2nd[6][11]={
-		1000,2000,0.741753, 0.00110575, -3.38327e-07, 1.15192, 0.000285416, 7.18395e-08, -1.39387, 0.00283121, -5.64608e-07, 
-		1000,2000,1.75226, 0.000169345, -1.25396e-07, 1.92894, -0.000184015, 5.1284e-08, 1.28478, 0.000460145, -1.09756e-07, 
-		1000,2000,0.032571, -0.00340172, 9.33694e-07, -1.82225, 0.000307922, -9.21127e-07, 8.73742, -0.0102517, 1.71879e-06, 
-		1000,2000,3.38794, -0.00216507, 7.89938e-07, 2.41936, -0.00022791, -1.78642e-07, 6.53698, -0.00434553, 8.50763e-07, 
-		1000,2000,2.862, 0.00144161, 5.2692e-07, 0.880902, 0.00540381, -1.45418e-06, 2.86996, 0.00341475, -9.56913e-07, 
-		1000,2000,0.564531, 0.00639651, 6.34132e-06, -1.98043, 0.0114864, 3.79636e-06, -22.3317, 0.0318377, -1.29146e-06
+	double dcbPara_2e2mu_2nd[6][3]={
+                1.0244,1.0818,1.0336,
+                1.9154,2.1662,1.8703,
+                -0.278857,-0.333179,-0.613171,
+                2.9629,2.9260,3.4551,
+                2.3241,2.0013,2.9526,
+                1.2975,1.4417,2.1706
 	};
-	double dcbPara_4mu_2nd[6][11]=
+	double dcbPara_4mu_2nd[6][3]=
 	{
-		1000,2000,1.2122, 0.000173393, 5.12448e-07, -0.27018, 0.00313815, -9.69932e-07, 2.15928, 0.000708693, -3.62567e-07, 
-		1000,2000,1.84735, 5.4914e-05, -3.83834e-08, 1.33726, 0.00107509, -5.48473e-07, 3.46976, -0.00105741, -1.53484e-08, 
-		1000,2000,0.0923286, -0.00227067, -3.25584e-07, 5.44305, -0.0129721, 5.02514e-06, -58.1031, 0.050574, -1.08614e-05, 
-		1000,2000,1.85848, 0.00123506, -1.40928e-06, 3.96505, -0.00297808, 6.97288e-07, 5.83482, -0.00484785, 1.16473e-06, 
-		1000,2000,2.78568, 0.00166347, -1.48862e-07, 7.89859, -0.00856235, 4.96405e-06, -30.2704, 0.0296066, -4.5782e-06, 
-		1000,2000,-0.0175753, 0.00735663, 1.1293e-05, -9.43701, 0.0261955, 1.87352e-06, -35.9749, 0.0527334, -4.76095e-06 
+		 1.2651,1.2368,1.3985,
+                2.0250,2.1748,2.0196,
+                -0.219142,-0.174066,-0.249654,
+                1.8784,2.0663,2.0315,
+                2.4881,1.7939,2.8807,
+                1.0501,1.0493,1.4110
+
 	};
-	double dcbPara_4e_2nd[6][11]=
+	double dcbPara_4e_2nd[6][3]=
 	{
-		1000,2000,0.917418, -0.000280427, 2.75712e-07, 0.492322, 0.000569765, -1.49384e-07, 1.9491, -0.000887013, 2.14811e-07, 
-		1000,2000,1.88487, -0.000477813, 3.69221e-07, 1.47359, 0.000344747, -4.2059e-08, 2.37719, -0.000558853, 1.83841e-07, 
-		1000,2000,-0.622834, -0.00150395, 7.52586e-07, -3.02999, 0.00331036, -1.65457e-06, 6.31176, -0.00603139, 6.80867e-07, 
-		1000,2000,5.8324, -0.00801147, 4.30593e-06, 1.04451, 0.00156431, -4.81962e-07, 2.41795, 0.00019087, -1.38602e-07, 
-		1000,2000,2.82558, 0.00162296, -7.92314e-07, 2.88448, 0.00150516, -7.33414e-07, 5.11166, -0.00072202, -1.76619e-07, 
-		1000,2000,1.55048, 0.00397066, -3.49938e-07, 3.16794, 0.00073574, 1.26752e-06, -1.96982, 0.0058735, -1.69175e-08 
+                0.96764,0.95576,1.0171,
+                1.9963,1.9721,1.6302,
+                -0.383618,-0.544708,-1.05107,
+                3.7472,4.4534,4.1982,
+                3.5587,2.3467,4.8193,
+                1.5794,1.9007,2.7310
 	};
 
-	double eff[3][11]={
+	double eff[3][3]={
 		//10% before
 		//    4e
 //		-4.413834E+00,4.616797E+00,-4.159802E+02,3.640200E+02, 1.981811E+00, 1.056963E-03,-3.426846E-07,1.598360E-01, 1.600000E+02,5.811111E+01,2.579534E-11,
@@ -82,28 +83,28 @@ void dosomething(TString chan ="2e2mu",bool cate_vbf =false,bool onshell=false){
 //		-4.45,4.58669,-398.384,316.466,2.99933,0.00206663,-8.44269e-07,0.124652,160,48.1899,1.05772e-10
 
 //		ggH->0p_4e_param_0:
-		-4.4781,4.56478,-410.689,302.175,3.54126,0.00226419,-9.08486e-07,0.0861973,160,45.6037,1.07622e-10,
+		-4.4781,4.56478,3.54126,
 	//	ggH->0p_4mu_param_0:
-		-4.44313,4.59816,-2313.39,1129.31,3.13553,0.00269624,-1.20507e-06,-9.71235,-105.225,79.0966,1.66983e-10,
+		-4.44313,4.59816,-2.7982,
 	//	ggH->0p_2e2mu_param_0:
-		-4.45465,4.5858,-313.199,295.457,3.09284,0.00192647,-7.78952e-07,0.36715,105.723,81.4614,9.69396e-11
+		-4.45465,4.5858,-3.18379
 	};
 
-	double dcbPara_2nd[6][11];
-	double effsig[11];
+	double dcbPara_2nd[6][3];
+	double effsig[3];
 
 	if (chan=="4e")   {
-		for (int i=0;i<6;i++){for(int j=0;j<11;j++){dcbPara_2nd[i][j]= dcbPara_4e_2nd[i][j];}}
-		for (int i=0;i<11;i++){effsig[i]=eff[0][i];}
+		for (int i=0;i<6;i++){for(int j=0;j<3;j++){dcbPara_2nd[i][j]= dcbPara_4e_2nd[i][j];}}
+		for (int i=0;i<3;i++){effsig[i]=eff[0][i];}
 
 	}
 	if (chan=="4mu")  {
-		for (int i=0;i<6;i++){for(int j=0;j<11;j++){dcbPara_2nd[i][j]= dcbPara_4mu_2nd[i][j];}}
-		for (int i=0;i<11;i++){effsig[i]=eff[1][i];}
+		for (int i=0;i<6;i++){for(int j=0;j<3;j++){dcbPara_2nd[i][j]= dcbPara_4mu_2nd[i][j];}}
+		for (int i=0;i<3;i++){effsig[i]=eff[1][i];}
 	}
 	if (chan=="2e2mu") {
-		for (int i=0;i<6;i++){for(int j=0;j<11;j++){dcbPara_2nd[i][j]= dcbPara_2e2mu_2nd[i][j];}}
-		for (int i=0;i<11;i++){effsig[i]=eff[2][i];}
+		for (int i=0;i<6;i++){for(int j=0;j<3;j++){dcbPara_2nd[i][j]= dcbPara_2e2mu_2nd[i][j];}}
+		for (int i=0;i<3;i++){effsig[i]=eff[2][i];}
 	}
 
 
@@ -152,7 +153,7 @@ void dosomething(TString chan ="2e2mu",bool cate_vbf =false,bool onshell=false){
 	RooPlot* frame_width= sigma->frame(Title("width")) ;
 	RooPlot* frame_mean= mean->frame(Title("mean")) ;
 
-	TFile *flo=new TFile("prepareInputs/ggh_input_spline.root","read");
+	TFile *flo=new TFile("ggh_input_spline.root","read");
 	//TFile *flo=new TFile("xsec_ggzz4l_13TeV_4e.root","read");
 //	TFile *flo=new TFile("width_new.root","read");
 	TString chn = "";
@@ -195,7 +196,7 @@ void dosomething(TString chan ="2e2mu",bool cate_vbf =false,bool onshell=false){
 	RooExtendPdf pdf_x("pdf_x"+chan+Form("%d",cate_vbf),"pdf_x"+chan+Form("%d",cate_vbf),par2_int,*xnorm);
 
 
-	TFile *fphase_noweight=new TFile("prepareInputs/fphase_ggH.root");
+	TFile *fphase_noweight=new TFile("/afs/cern.ch/work/w/wahung/public/CMSSW_7_1_5/src/HiggsAnalysis/CombinedLimit/Mass-Width/prepareInputs/fphase_ggH.root");
 	TGraph *phase_sin = fphase_noweight->Get("sinspline");
 	TGraph *phase_cos = fphase_noweight->Get("cosspline");
 
@@ -209,7 +210,7 @@ void dosomething(TString chan ="2e2mu",bool cate_vbf =false,bool onshell=false){
   "pdf_dn",
   "pdf_up"
 };
-	TFile *fkfactor = new TFile("prepareInputs/kfactor.root");
+	TFile *fkfactor = new TFile("kfactor.root");
 
 /**** calculate the xsec after kfactor ****/
 /*
@@ -258,7 +259,7 @@ return;
 //	TFile *fbkge = new TFile ("/afs/cern.ch/work/x/xiaomeng/test/myWorkingArea/highmass/Fit/whatthefuck/bkg_eff.root");
 //	TGraph *eff_bkg =  (TGraph*)fbkge->Get("bkgeff_"+chan);
 
-	TFile *fbkge = new TFile ("prepareInputs/bkg_reg_eff.root");
+	TFile *fbkge = new TFile ("/afs/cern.ch/work/w/wahung/public/CMSSW_7_1_5/src/HiggsAnalysis/CombinedLimit/Mass-Width/prepareInputs/bkg_reg_eff.root");
 	TGraph *eff_bkg =  (TGraph*)fbkge->Get("ggZZ_reg_"+chan);
 
 
@@ -273,7 +274,8 @@ TGraph* ggZZ_kf [5];
 	mean->setVal(125);
 	sigma->setVal(0.004165);
 
-	TString formu_2nd=" (@0<@1)*(@3+@0*@4+@0*@0*@5 ) + ( @0>=@1 && @0<@2)*(@6+@0*@7+@0*@0*@8) + (@0>=@2)*(@9+@0*@10+@0*@0*@11)";	
+//	TString formu_2nd=" (@0<@1)*(@3+@0*@4+@0*@0*@5 ) + ( @0>=@1 && @0<@2)*(@6+@0*@7+@0*@0*@8) + (@0>=@2)*(@9+@0*@10+@0*@0*@11)";	
+	TString formu_2nd = "@0+@1+@2";
 
 	RooArgList formuList_a1;
 	RooArgList formuList_a2;
@@ -288,13 +290,13 @@ TGraph* ggZZ_kf [5];
 	formuList_n2.add(*mzz);
 	formuList_sigma.add(*mzz);
 
-	RooConstVar* a1_p0_0_2nd[11] ;
-	RooConstVar* a2_p0_0_2nd[11] ;
-	RooConstVar* mean_p0_0_2nd[11] ;
-	RooConstVar* n1_p0_0_2nd[11] ;
-	RooConstVar* n2_p0_0_2nd[11] ;
-	RooConstVar* sigma_p0_0_2nd[11] ;
-	for(int i =0; i<11;i++){
+	RooConstVar* a1_p0_0_2nd[3] ;
+	RooConstVar* a2_p0_0_2nd[3] ;
+	RooConstVar* mean_p0_0_2nd[3] ;
+	RooConstVar* n1_p0_0_2nd[3] ;
+	RooConstVar* n2_p0_0_2nd[3] ;
+	RooConstVar* sigma_p0_0_2nd[3] ;
+	for(int i =0; i<3;i++){
 		a1_p0_0_2nd[i]= new RooConstVar(Form("%s_%d_a1_p0_0_2nd",chan.Data(),i),Form("%s_%d_a1_p0_0_2nd",chan.Data(),i),dcbPara_2nd[0][i]);
 		a2_p0_0_2nd[i]= new RooConstVar(Form("%s_%d_a2_p0_0_2nd",chan.Data(),i),Form("%s_%d_a2_p0_0_2nd",chan.Data(),i),dcbPara_2nd[1][i]);
 		mean_p0_0_2nd[i]= new RooConstVar(Form("%s_%d_mean_p0_0_2nd",chan.Data(),i),Form("%s_%d_mean_p0_0_2nd",chan.Data(),i),dcbPara_2nd[2][i]);
@@ -340,8 +342,9 @@ int f=0;
 
 	for(int i =0;i<nbins*2;i++){
 		double cva = low+ i*(high-low)/double(nbins)/2.;
-		double effval_sig = (effsig[0]+effsig[1]*TMath::Erf( (cva-effsig[2])/effsig[3] ))*(effsig[4]+effsig[5]*cva+effsig[6]*cva*cva+effsig[10]*cva*cva*cva)+effsig[7]*TMath::Gaus(cva,effsig[8],effsig[9]);
+//		double effval_sig = (effsig[0]+effsig[1]*TMath::Erf( (cva-effsig[2])/effsig[3] ))*(effsig[4]+effsig[5]*cva+effsig[6]*cva*cva+effsig[10]*cva*cva*cva)+effsig[7]*TMath::Gaus(cva,effsig[8],effsig[9]);
 //		double effcate = 2.572353e-02;
+              double effval_sig = effsig[0];
 		double effcate = 0.0387026; 
 		if(!cate_vbf)
 			effcate = 1-effcate;
@@ -363,7 +366,8 @@ int f=0;
 	phase_cos_fix->SetName("gghcos"+chan+Form("%d",cate_vbf));
 	//phase_cos_fix->Draw("al");
 	//phase_sin_fix->Draw("lsame");
-	//return;
+	//
+	///return;
 	RooAbsReal *final_integral;
 
 	if(onshell){
@@ -499,9 +503,9 @@ int f=0;
 	mreco->Print("v");
 	cout << mreco->getBins();
 
-	TString filename = "workspace125/hzz4l_"+chan+Form("%dS_13TeV.input_func.root",cate_vbf);
+	TString filename = "workspace125_cat/hzz4l_"+chan+Form("%dS_13TeV.input_func_cat.root",cate_vbf);
 	if(onshell)
-		filename = "workspace125_onshell/hzz4l_"+chan+Form("%dS_13TeV.input_func.root",cate_vbf);
+		filename = "workspace125_onshell_cat/hzz4l_"+chan+Form("%dS_13TeV.input_func_cat.root",cate_vbf);
 	TFile *fwor=new TFile(filename,"recreate");	
 	fwor->cd();
 	w.Write();
@@ -509,7 +513,7 @@ int f=0;
 	return;
 }
 
-void clean(TString chan="4e",bool cat_vbf=0, bool onshell=0){
+void clean_cat(TString chan="4e",bool cat_vbf=0, bool onshell=0){
 	gROOT->ProcessLine("gSystem->AddIncludePath(\"-I$ROOFITSYS/include/\")");
 	gROOT->ProcessLine("gSystem->Load(\"libRooFit\")");
 	gROOT->ProcessLine("gSystem->Load(\"libHiggsAnalysisCombinedLimit.so\")");
