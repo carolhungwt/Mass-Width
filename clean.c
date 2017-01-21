@@ -1,7 +1,7 @@
 /** Things to remember later
- * mzz range defined by ggZZ workspace, create 2 versions for onshell and offshell
- * give different ggzz RooKeysPdf name for 2e2mu and 4e
- *
+*  mzz range defined by ggZZ workspace, create 2 versions for onshell and offshell
+*  give different ggzz RooKeysPdf name for 2e2mu and 4e
+* 
  ****/
 #include <iostream>
 #include <cmath>
@@ -24,6 +24,10 @@
 #include "RooAbsPdf.h"
 #include "HZZ2L2QRooPdfs.h"
 #include "HZZ4L_RooHighmass.h"
+#include "Width_conv.h"
+#include "Width_conv_offshell.h"
+#include "Width_integral.h"
+#include "Width_conv_integral.h"
 #include "RooDataHist.h"
 #include "RooGaussian.h"
 #include "RooKeysPdf.h"
@@ -146,7 +150,7 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
 
   double recolowarr[2]={ 104, 105 };
   double recohigharr[2]={ 1604., 140. };
-  const int reconbinsarr[2]={ 750, 100 };
+  //const int reconbinsarr[2]={ 750, 100 };
 
   const double low= lowarr[onshell];
   const double high=higharr[onshell];
@@ -154,46 +158,43 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
 
   const double low_reco=recolowarr[onshell];
   const double high_reco=recohigharr[onshell];
-  const int nbins_reco=reconbinsarr[onshell];
+  //const int nbins_reco=reconbinsarr[onshell];
 
-  cout << low<<"\t"<<high<<endl;
-  cout << low_reco<<"\t"<<high_reco<<endl;
+  cout << low << "\t" << high << endl;
+  cout << low_reco << "\t" << high_reco << endl;
 
-  TString ap = "";
-  if (onshell)
-    ap="_onshell";
-  TFile *fpdfbkg = new TFile("pdfs"+ap+".root");
-  RooWorkspace *wbkg =(RooWorkspace*)fpdfbkg->Get("w");
+  TString ap = (onshell ? "_onshell" : "");
+  TFile* fpdfbkg = new TFile("pdfs"+ap+".root");
+  RooWorkspace* wbkg =(RooWorkspace*)fpdfbkg->Get("w");
 
   //RooRealVar* mzz = new RooRealVar("ZZMass","M_{ZZ} (GeV)",125,low,high);
   RooRealVar* mzz = wbkg->var("ZZMass");
   RooRealVar* mreco= new RooRealVar("mreco", "M_{ZZ} (GeV)", 125, low_reco, high_reco);
-  RooRealVar* mdiff= new RooRealVar("mdiff", "M_{ZZ} (GeV)", 125, low_reco, high_reco);
+  //RooRealVar* mdiff= new RooRealVar("mdiff", "M_{ZZ} (GeV)", 125, low_reco, high_reco);
 
-  RooRealVar *r= new RooRealVar("r", "signal strength", 1., 0.0001, 1000);
+  RooRealVar* r= new RooRealVar("r", "signal strength", 1., 0.0001, 1000);
 
-  //	mreco->setBins(nbins_reco);
+  //mreco->setBins(nbins_reco);
   RooRealVar* mean = new RooRealVar("mean_pole", "mean_pole", 125, 100, 180);
   RooRealVar* sigma= new RooRealVar("sigma_pole", "sigma_pole", 0.00418, 0., 10.);
 
-  RooConstVar* mean_125= new RooConstVar("mean_125", "mean_125", 125);
-  RooConstVar* sigma_125= new RooConstVar("sigma_125", "sigma_125", 0.00407);
+  //RooConstVar* mean_125= new RooConstVar("mean_125", "mean_125", 125);
+  //RooConstVar* sigma_125= new RooConstVar("sigma_125", "sigma_125", 0.00407);
 
-  RooPlot* frame= mreco->frame(low_reco, high_reco);
-  //	RooPlot* frame= mreco->frame(150,250) ;
-  RooPlot* frame_mzz= mzz->frame(Title("Z mass"));
-  RooPlot* frame_width= sigma->frame(Title("width"));
-  RooPlot* frame_mean= mean->frame(Title("mean"));
+  //RooPlot* frame=mreco->frame(low_reco, high_reco);
+  //RooPlot* frame=mreco->frame(150,250) ;
+  RooPlot* frame_mzz=mzz->frame(Title("Z mass"));
+  RooPlot* frame_width=sigma->frame(Title("width"));
+  //RooPlot* frame_mean=mean->frame(Title("mean"));
 
-  TFile *flo=new TFile("ggh_input_spline.root", "read");
-  //TFile *flo=new TFile("xsec_ggzz4l_13TeV_4e.root","read");
-  //	TFile *flo=new TFile("width_new.root","read");
+  TFile* flo=new TFile("ggh_input_spline.root", "read");
+  //TFile* flo=new TFile("xsec_ggzz4l_13TeV_4e.root","read");
+  //TFile* flo=new TFile("width_new.root","read");
   TString chn = "";
-  if (chan!="2e2mu")
-    chn="_4e";
-  //	TGraph *lo=(TGraph*) flo->Get("gr_"+chn);
-  //TGraph *lo=(TGraph*) flo->Get("br_"+chn);
-  TSpline3 *lo=(TSpline3*)flo->Get("sp_xsec_statnom"+chn);
+  if (chan!="2e2mu") chn="_4e";
+  //TGraph* lo=(TGraph*) flo->Get("gr_"+chn);
+  //TGraph* lo=(TGraph*) flo->Get("br_"+chn);
+  TSpline3* lo=(TSpline3*)flo->Get("sp_xsec_statnom"+chn);
 
   SplinePdf par2_int("par2_int"+chan+Form("%d", cate_vbf), "", *mzz, *mean, *sigma, *lo);
   RooRealVar m_gauss("m_gauss", "", 125);
@@ -201,40 +202,42 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
   RooGaussian gauss("gauss", "", *mzz, m_gauss, w_gauss);
 
   TString pdfn = "2e2mu";
-  if (chan!="2e2mu")
-    pdfn = "4e";
-  RooKeysPdf *pdfbkg = wbkg->pdf("pdfbkg_"+pdfn);
+  if (chan!="2e2mu") pdfn = "4e";
+  RooKeysPdf* pdfbkg = (RooKeysPdf*)wbkg->pdf("pdfbkg_"+pdfn);
 
-  //	RooKeysPdf *pdfbkg = (RooKeysPdf*)fpdfbkg->Get("pdfbkg");
+  /*
+  RooKeysPdf* pdfbkg = (RooKeysPdf*)fpdfbkg->Get("pdfbkg");
+  TChain* ggzz = new TChain ("SelectedTree");
+  ggzz->Add("/afs/cern.ch/work/x/xiaomeng/test/myWorkingArea/highmass/rootfiles/ggZZ_Bkg_xcheck.root");
+  ggzz->Draw("ZZMass>>hggzz","ZZMass>100");
+  TTree* cuttree = ggzz->CloneTree(0);
 
-  //	TChain *ggzz = new TChain ("SelectedTree");
-  //	ggzz->Add("/afs/cern.ch/work/x/xiaomeng/test/myWorkingArea/highmass/rootfiles/ggZZ_Bkg_xcheck.root");
-  //	ggzz->Draw("ZZMass>>hggzz","ZZMass>100");
-  //	TTree *cuttree = ggzz->CloneTree(0);
-  //
-  ////	    for(int i =0;i<100000;i++){
-  //	for(int i =0;i<2000;i++){
-  //		ggzz->GetEntry(i);
-  //		cuttree->Fill();
-  //	}
-  //	RooDataSet bkgdata ("bkgdata","",cuttree,*mzz);
-  //	RooKeysPdf *pdfbkg=new RooKeysPdf("pdfbkg","",*mzz,bkgdata,RooKeysPdf::MirrorLeft);
+  //for(int i =0;i<100000;i++){
+  for(int i =0;i<2000;i++){
+  ggzz->GetEntry(i);
+  cuttree->Fill();
+  }
+  RooDataSet bkgdata ("bkgdata","",cuttree,*mzz);
+  RooKeysPdf* pdfbkg=new RooKeysPdf("pdfbkg","",*mzz,bkgdata,RooKeysPdf::MirrorLeft);
+  */
 
 
-  RooConstVar *ggzznorm= new RooConstVar("ggzznorm"+chan+Form("%d", cate_vbf), "", lumi*ggzz_xsec);
+  RooConstVar* ggzznorm= new RooConstVar("ggzznorm"+chan+Form("%d", cate_vbf), "", lumi*ggzz_xsec);
   RooExtendPdf pdf_ggzz("pdf_ggzz"+chan+Form("%d", cate_vbf), "pdf_ggzz"+chan+Form("%d", cate_vbf), *pdfbkg, *ggzznorm);
 
-  RooConstVar *xnorm= new RooConstVar("xnorm"+chan+Form("%d", cate_vbf), "", lumi*x_xsec);
+  RooConstVar* xnorm= new RooConstVar("xnorm"+chan+Form("%d", cate_vbf), "", lumi*x_xsec);
   RooExtendPdf pdf_x("pdf_x"+chan+Form("%d", cate_vbf), "pdf_x"+chan+Form("%d", cate_vbf), par2_int, *xnorm);
 
 
-  TFile *fphase_noweight=new TFile("/afs/cern.ch/work/w/wahung/public/CMSSW_7_1_5/src/HiggsAnalysis/CombinedLimit/Mass-Width/prepareInputs/fphase_ggH.root");
-  TGraph *phase_sin = fphase_noweight->Get("sinspline");
-  TGraph *phase_cos = fphase_noweight->Get("cosspline");
+  TFile* fphase_noweight=new TFile("/afs/cern.ch/work/w/wahung/public/CMSSW_7_1_5/src/HiggsAnalysis/CombinedLimit/Mass-Width/prepareInputs/fphase_ggH.root");
+  TGraph* phase_sin = (TGraph*)fphase_noweight->Get("sinspline");
+  TGraph* phase_cos = (TGraph*)fphase_noweight->Get("cosspline");
 
-  //	TFile *fkfactor = new TFile("/afs/cern.ch/work/x/xiaomeng/test/myWorkingArea/highmass/Fit/whatthefuck/Kfactor_Collected_ggHZZ_2l2l_NNLO_NNPDF_NarrowWidth_13TeV.root");
-  //		//TSpline3* ggZZ_kf [9];//= (TSpline3*)fkfactor->Get("sp_kfactor_Nominal");
-  //		TSpline3* ggZZ_kf = (TSpline3*)fkfactor->Get("sp_kfactor_Nominal");
+  /*
+  TFile* fkfactor = new TFile("/afs/cern.ch/work/x/xiaomeng/test/myWorkingArea/highmass/Fit/whatthefuck/Kfactor_Collected_ggHZZ_2l2l_NNLO_NNPDF_NarrowWidth_13TeV.root");
+  //TSpline3* ggZZ_kf [9];//= (TSpline3*)fkfactor->Get("sp_kfactor_Nominal");
+  TSpline3* ggZZ_kf = (TSpline3*)fkfactor->Get("sp_kfactor_Nominal");
+  */
   TString strSystTitle[5] ={
     "Nominal",
     "qcd_dn",
@@ -242,7 +245,7 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
     "pdf_dn",
     "pdf_up"
   };
-  TFile *fkfactor = new TFile("kfactor.root");
+  TFile* fkfactor = new TFile("kfactor.root");
 
   /**** calculate the xsec after kfactor ****/
   /*
@@ -288,15 +291,15 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
       return;
       */
 
-  //	TFile *fbkge = new TFile ("/afs/cern.ch/work/x/xiaomeng/test/myWorkingArea/highmass/Fit/whatthefuck/bkg_eff.root");
-  //	TGraph *eff_bkg =  (TGraph*)fbkge->Get("bkgeff_"+chan);
+  //TFile* fbkge = new TFile ("/afs/cern.ch/work/x/xiaomeng/test/myWorkingArea/highmass/Fit/whatthefuck/bkg_eff.root");
+  //TGraph* eff_bkg =  (TGraph*)fbkge->Get("bkgeff_"+chan);
 
-  TFile *fbkge = new TFile("/afs/cern.ch/work/w/wahung/public/CMSSW_7_1_5/src/HiggsAnalysis/CombinedLimit/Mass-Width/prepareInputs/bkg_reg_eff.root");
-  TGraph *eff_bkg =  (TGraph*)fbkge->Get("ggZZ_reg_"+chan);
+  TFile* fbkge = new TFile("/afs/cern.ch/work/w/wahung/public/CMSSW_7_1_5/src/HiggsAnalysis/CombinedLimit/Mass-Width/prepareInputs/bkg_reg_eff.root");
+  TGraph* eff_bkg =  (TGraph*)fbkge->Get("ggZZ_reg_"+chan);
 
 
-  TGraph *phase_sin_fix= new TGraph(nbins*2);
-  TGraph *phase_cos_fix= new TGraph(nbins*2);
+  TGraph* phase_sin_fix= new TGraph(nbins*2);
+  TGraph* phase_cos_fix= new TGraph(nbins*2);
 
   RooWorkspace w("w");
   TGraph* ggZZ_kf[5];
@@ -306,8 +309,8 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
   mean->setVal(125);
   sigma->setVal(0.004165);
 
-  //	TString formu_2nd=" (@0<@1)*(@3+@0*@4+@0*@0*@5 ) + ( @0>=@1 && @0<@2)*(@6+@0*@7+@0*@0*@8) + (@0>=@2)*(@9+@0*@10+@0*@0*@11)";	
-  TString formu_2nd = "@0+@1+@2";
+  //TString formu_2nd=" (@0<@1)*(@3+@0*@4+@0*@0*@5 ) + ( @0>=@1 && @0<@2)*(@6+@0*@7+@0*@0*@8) + (@0>=@2)*(@9+@0*@10+@0*@0*@11)";	
+  TString formu_2nd = "@0+@1*@0+@2*pow(@0,2)";
 
   RooArgList formuList_a1;
   RooArgList formuList_a2;
@@ -328,7 +331,7 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
   RooConstVar* n1_p0_0_2nd[3];
   RooConstVar* n2_p0_0_2nd[3];
   RooConstVar* sigma_p0_0_2nd[3];
-  for (int i =0; i<3; i++){
+  for (int i=0; i<3; i++){
     a1_p0_0_2nd[i]= new RooConstVar(Form("%s_%d_a1_p0_0_2nd", chan.Data(), i), Form("%s_%d_a1_p0_0_2nd", chan.Data(), i), dcbPara_2nd[0][i]);
     a2_p0_0_2nd[i]= new RooConstVar(Form("%s_%d_a2_p0_0_2nd", chan.Data(), i), Form("%s_%d_a2_p0_0_2nd", chan.Data(), i), dcbPara_2nd[1][i]);
     mean_p0_0_2nd[i]= new RooConstVar(Form("%s_%d_mean_p0_0_2nd", chan.Data(), i), Form("%s_%d_mean_p0_0_2nd", chan.Data(), i), dcbPara_2nd[2][i]);
@@ -352,41 +355,40 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
   RooFormulaVar* sigma_p0_2nd= new RooFormulaVar("sigma_p0_2nd"+chan, "sigma_p0_2nd"+chan, formu_2nd, formuList_sigma);
 
 
-  //	RooFormulaVar *mzz_shift = new RooFormulaVar("mzz_shift","","@0+@1",RooArgList(*mean_p0_2nd,*mzz));
+  //RooFormulaVar* mzz_shift = new RooFormulaVar("mzz_shift","","@0+@1",RooArgList(*mean_p0_2nd,*mzz));
 
-  //    RooFormulaVar *n2_p0_up = new RooFormulaVar("n2_p0_up","","@0+0.2*@0",*n2_p0_2nd);
-  //    RooFormulaVar *n2_p0_dn = new RooFormulaVar("n2_p0_dn","","@0-0.2*@0",*n2_p0_2nd);
+  //RooFormulaVar* n2_p0_up = new RooFormulaVar("n2_p0_up","","@0+0.2*@0",*n2_p0_2nd);
+  //RooFormulaVar* n2_p0_dn = new RooFormulaVar("n2_p0_dn","","@0-0.2*@0",*n2_p0_2nd);
 
-  RooFormulaVar *sigma_p0_up = new RooFormulaVar("sigma_p0_up", "", "@0+0.2*@0", *sigma_p0_2nd);
-  RooFormulaVar *sigma_p0_dn = new RooFormulaVar("sigma_p0_dn", "", "@0-0.2*@0", *sigma_p0_2nd);
+  RooFormulaVar* sigma_p0_up = new RooFormulaVar("sigma_p0_up", "", "@0+0.2*@0", *sigma_p0_2nd);
+  RooFormulaVar* sigma_p0_dn = new RooFormulaVar("sigma_p0_dn", "", "@0-0.2*@0", *sigma_p0_2nd);
   RooDoubleCB dcrReso("dcrReso"+chan, "Double Crystal ball ", *mreco, *mzz, *mean_p0_2nd, *sigma_p0_2nd, *a1_p0_2nd, *n1_p0_2nd, *a2_p0_2nd, *n2_p0_2nd);
   RooDoubleCB dcrReso_up("dcrReso"+chan+"_up", "dcb up", *mreco, *mzz, *mean_p0_2nd, *sigma_p0_up, *a1_p0_2nd, *n1_p0_2nd, *a2_p0_2nd, *n2_p0_2nd);
   RooDoubleCB dcrReso_dn("dcrReso"+chan+"_dn", "dcb up", *mreco, *mzz, *mean_p0_2nd, *sigma_p0_dn, *a1_p0_2nd, *n1_p0_2nd, *a2_p0_2nd, *n2_p0_2nd);
 
 
-  //	Width_conv *convpdf_spline[5];
+  //Width_conv* convpdf_spline[5];
   //for(int f = 0; f<1;f++){
   int f=0;
   TString sysname = strSystTitle[f];
   ggZZ_kf[f] =(TGraph*)fkfactor->Get("sp_kfactor_"+sysname);
-  TGraph *effxkf_sig= new TGraph(nbins*2);
-  TGraph *effxkf_bkg= new TGraph(nbins*2);
+  TGraph* effxkf_sig= new TGraph(nbins*2);
+  TGraph* effxkf_bkg= new TGraph(nbins*2);
 
   for (int i =0; i<nbins*2; i++){
     double cva = low+ i*(high-low)/double(nbins)/2.;
-    //		double effval_sig = (effsig[0]+effsig[1]*TMath::Erf( (cva-effsig[2])/effsig[3] ))*(effsig[4]+effsig[5]*cva+effsig[6]*cva*cva+effsig[10]*cva*cva*cva)+effsig[7]*TMath::Gaus(cva,effsig[8],effsig[9]);
-    //		double effcate = 2.572353e-02;
+    //double effval_sig = (effsig[0]+effsig[1]*TMath::Erf( (cva-effsig[2])/effsig[3] ))*(effsig[4]+effsig[5]*cva+effsig[6]*cva*cva+effsig[10]*cva*cva*cva)+effsig[7]*TMath::Gaus(cva,effsig[8],effsig[9]);
+    //double effcate = 2.572353e-02;
     double effval_sig = effsig[0];
     double effcate = 0.0387026;
-    if (!cate_vbf)
-      effcate = 1-effcate;
+    if (!cate_vbf) effcate = 1-effcate;
 
     double va_bkg= eff_bkg->Eval(cva)*ggZZ_kf[f]->Eval(cva)*effcate;
     double va_sig= effval_sig*ggZZ_kf[f]->Eval(cva)*effcate;
-    //		if(chan=="2e2mu"){
-    //			va_bkg*=0.95;
-    //			va_sig*=0.95;
-    //		}
+    //if (chan=="2e2mu"){
+    //  va_bkg*=0.95;
+    //  va_sig*=0.95;
+    //}
     effxkf_sig->SetPoint(effxkf_sig->GetN(), cva, va_sig);
     effxkf_bkg->SetPoint(effxkf_bkg->GetN(), cva, va_bkg);
     phase_sin_fix->SetPoint(phase_sin_fix->GetN(), cva, phase_sin->Eval(cva)/2.*1.76);
@@ -400,10 +402,10 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
   //phase_sin_fix->Draw("lsame");
   //
   ///return;
-  RooAbsReal *final_integral;
-
+  RooAbsPdf* convpdf_spline;
+  RooAbsReal* final_integral;
   if (onshell){
-    convpdf_spline=new Width_conv("ggH"+strSystTitle[f], "ggH"+strSystTitle[f], *mreco, *mean, *sigma, *r, RooArgList(pdf_x, pdf_ggzz, dcrReso), *phase_cos_fix, *phase_sin_fix, *effxkf_sig, *effxkf_bkg);
+    convpdf_spline = new Width_conv("ggH"+strSystTitle[f], "ggH"+strSystTitle[f], *mreco, *mean, *sigma, *r, RooArgList(pdf_x, pdf_ggzz, dcrReso), *phase_cos_fix, *phase_sin_fix, *effxkf_sig, *effxkf_bkg);
     convpdf_spline->SetNameTitle("ggH", "ggH");
     Width_conv convpdf_spline_up("ggH_Res"+chan+"Up", "ggH"+chan+"Up", *mreco, *mean, *sigma, *r, RooArgList(pdf_x, pdf_ggzz, dcrReso_up), *phase_cos_fix, *phase_sin_fix, *effxkf_sig, *effxkf_bkg);
     Width_conv convpdf_spline_dn("ggH_Res"+chan+"Down", "ggH"+chan+"Down", *mreco, *mean, *sigma, *r, RooArgList(pdf_x, pdf_ggzz, dcrReso_dn), *phase_cos_fix, *phase_sin_fix, *effxkf_sig, *effxkf_bkg);
@@ -413,19 +415,19 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
     final_integral = convpdf_spline->createIntegral(*mreco);
   }
   else{
-    Width_conv_offshell *convpdf_spline=new Width_conv_offshell("bggH"+strSystTitle[f], "bggH"+strSystTitle[f], *mreco, *mean, *sigma, *r, RooArgList(pdf_x, pdf_ggzz, dcrReso), *phase_cos_fix, *phase_sin_fix, *effxkf_sig, *effxkf_bkg);
-    //    convpdf_spline->SetNameTitle("ggH","ggH");
-    //		Width_conv_offshell convpdf_spline_up("ggH_Res"+chan+"Up", "ggH"+chan+"Up",*mreco, *mean, *sigma, *r, RooArgList(pdf_x, pdf_ggzz,dcrReso_up),*phase_cos_fix, *phase_sin_fix, *effxkf_sig,*effxkf_bkg); 
-    //		Width_conv_offshell convpdf_spline_dn("ggH_Res"+chan+"Down", "ggH"+chan+"Down",*mreco, *mean, *sigma, *r, RooArgList(pdf_x, pdf_ggzz,dcrReso_dn),*phase_cos_fix, *phase_sin_fix, *effxkf_sig,*effxkf_bkg); 
-    //		w.import(*convpdf_spline,RecycleConflictNodes());
-    //		w.import(convpdf_spline_up,RecycleConflictNodes());
-    //		w.import(convpdf_spline_dn,RecycleConflictNodes());
+    convpdf_spline=new Width_conv_offshell("bggH"+strSystTitle[f], "bggH"+strSystTitle[f], *mreco, *mean, *sigma, *r, RooArgList(pdf_x, pdf_ggzz, dcrReso), *phase_cos_fix, *phase_sin_fix, *effxkf_sig, *effxkf_bkg);
+    //convpdf_spline->SetNameTitle("ggH","ggH");
+    //Width_conv_offshell convpdf_spline_up("ggH_Res"+chan+"Up", "ggH"+chan+"Up",*mreco,* mean,* sigma,* r, RooArgList(pdf_x, pdf_ggzz,dcrReso_up),*phase_cos_fix,* phase_sin_fix,* effxkf_sig,*effxkf_bkg); 
+    //Width_conv_offshell convpdf_spline_dn("ggH_Res"+chan+"Down", "ggH"+chan+"Down",*mreco,* mean,* sigma,* r, RooArgList(pdf_x, pdf_ggzz,dcrReso_dn),*phase_cos_fix,* phase_sin_fix,* effxkf_sig,*effxkf_bkg); 
+    //w.import(*convpdf_spline,RecycleConflictNodes());
+    //w.import(convpdf_spline_up,RecycleConflictNodes());
+    //w.import(convpdf_spline_dn,RecycleConflictNodes());
     final_integral = convpdf_spline->createIntegral(*mreco);
   }
   //else{
-  //      strSystTitle[f].ReplaceAll("dn","Down");
-  //      strSystTitle[f].ReplaceAll("up","Up");
-  //      convpdf_spline[f]->SetNameTitle("ggH_"+strSystTitle[f],"ggH_"+strSystTitle[f]);
+  //  strSystTitle[f].ReplaceAll("dn","Down");
+  //  strSystTitle[f].ReplaceAll("up","Up");
+  //  convpdf_spline[f]->SetNameTitle("ggH_"+strSystTitle[f],"ggH_"+strSystTitle[f]);
   //}
 
   mean->setVal(125);
@@ -433,46 +435,45 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
   //pdf_ggzz.plotOn(frame_mzz);
   pdf_x.plotOn(frame_mzz);
 
-  //	sigma->setVal(5.);
-  //	convpdf_spline.plotOn(frame);
-  //	sigma->setVal(1.);
-  //	convpdf_spline.plotOn(frame,LineColor(2));
+  //sigma->setVal(5.);
+  //convpdf_spline.plotOn(frame);
+  //sigma->setVal(1.);
+  //convpdf_spline.plotOn(frame,LineColor(2));
   sigma->setVal(0.004);
-  //	convpdf_spline[f]->plotOn(frame,LineColor(f+1));
+  //convpdf_spline[f]->plotOn(frame,LineColor(f+1));
   //frame->Draw();
   ////frame_mzz->Draw();
 
   r->setVal(0);
-  double bexp =  final_integral->getVal();
+  double bexp = final_integral->getVal();
 
-  RooConstVar *bkg_integral= new RooConstVar("bkg_integral"+chan+Form("%d", cate_vbf)+strSystTitle[f], "", bexp);
+  RooConstVar* bkg_integral= new RooConstVar("bkg_integral"+chan+Form("%d", cate_vbf)+strSystTitle[f], "", bexp);
 
   mean->setVal(125);
   //ROOT::Math::Interpolator inter(200, ROOT::Math::Interpolation::kCSPLINE);
   sigma->setRange(0.00005, 100.);
 
-  TH2F *hint;
-  TH2F *hsig;
+  TH2F* hint;
+  TH2F* hsig;
   if (!onshell){
     //hint= new TH2F("hint","",101,99.75,150.25,101,-0.0005,0.1005);
     //hsig= new TH2F("hsig","",101,99.75,150.25,101,-0.0005,0.1005);
     hint= new TH2F("hint", "", 101, 119.95, 130.05, 101, -0.0005, 0.1005);
     hsig= new TH2F("hsig", "", 101, 119.95, 130.05, 101, -0.0005, 0.1005);
-    //	hint= new TH2F("hint","",11,100.25,150.25,11,-0.0005,0.1005);
-    //	hsig= new TH2F("hsig","",11,100.25,150.25,11,-0.0005,0.1005);
+    //hint= new TH2F("hint","",11,100.25,150.25,11,-0.0005,0.1005);
+    //hsig= new TH2F("hsig","",11,100.25,150.25,11,-0.0005,0.1005);
   }
   else{
     hint= new TH2F("hint", "", 101, 119.95, 130.05, 101, -0.025, 5.025);
     hsig= new TH2F("hsig", "", 101, 119.95, 130.05, 101, -0.025, 5.025);
     //hint= new TH2F("hint","",101,122.475,127.525,101,-0.025,5.025);
     //hsig= new TH2F("hsig","",101,122.475,127.525,101,-0.025,5.025);
-    //	hint= new TH2F("hint","",11,122.475,127.525,11,-0.025,5.025);
-    //	hsig= new TH2F("hsig","",11,122.475,127.525,11,-0.025,5.025);
+    //hint= new TH2F("hint","",11,122.475,127.525,11,-0.025,5.025);
+    //hsig= new TH2F("hsig","",11,122.475,127.525,11,-0.025,5.025);
   }
 
-  for (int i = 0; i <101; i++){
-    if (i%10==0)
-      cout<<i<<endl;
+  for (int i = 0; i < 101; i++){
+    if (i%10==0) cout << i << endl;
     for (int j = 0; j <101; j++){
       double mv=hint->GetXaxis()->GetBinCenter(i+1);
       double sv=hint->GetYaxis()->GetBinCenter(j+1);
@@ -486,25 +487,24 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
       double sbi2 =  final_integral->getVal();
       double sexp = ((sbi2-sbi*2)+bexp)/2.;
       double iexp = sbi -sexp -bexp;
-      //			cout << sigma->getVal()<<"\t"<< mean->getVal()<<endl;
-      //	float integral = final_integral->getVal();
+      //cout << sigma->getVal() << "\t" << mean->getVal() << endl;
+      //float integral = final_integral->getVal();
       hint->Fill(mean->getVal(), sigma->getVal(), iexp);
       hsig->Fill(mean->getVal(), sigma->getVal(), sexp);
     }
   }
 
   RooDataHist* hinthist= new RooDataHist("hinthist"+chan+Form("%d", cate_vbf)+strSystTitle[f], "hinthist"+chan+Form("%d", cate_vbf)+strSystTitle[f], RooArgSet(*mean, *sigma), hint);
-  RooHistFunc *hintfunc = new RooHistFunc("hintfunc"+chan+Form("%d", cate_vbf)+strSystTitle[f], "", RooArgSet(*mean, *sigma), *hinthist);
-  Width_integral inter_intergral("int_integral"+chan+Form("%d", cate_vbf)+strSystTitle[f], "", *mean, *sigma, RooArgList(*hintfunc));
+  RooHistFunc* hintfunc = new RooHistFunc("hintfunc"+chan+Form("%d", cate_vbf)+strSystTitle[f], "", RooArgSet(*mean, *sigma), *hinthist);
+  Width_integral inter_integral("int_integral"+chan+Form("%d", cate_vbf)+strSystTitle[f], "", *mean, *sigma, RooArgList(*hintfunc));
 
   RooDataHist* hsighist= new RooDataHist("hsighist"+chan+Form("%d", cate_vbf)+strSystTitle[f], "hsighist"+chan+Form("%d", cate_vbf)+strSystTitle[f], RooArgSet(*mean, *sigma), hsig);
-  RooHistFunc *hsigfunc = new RooHistFunc("hsigfunc"+chan+Form("%d", cate_vbf)+strSystTitle[f], "", RooArgSet(*mean, *sigma), *hsighist);
-  Width_integral sig_intergral("sig_integral"+chan+Form("%d", cate_vbf)+strSystTitle[f], "", *mean, *sigma, RooArgList(*hsigfunc));
-  RooFormulaVar overall_intergral("ggH_norm"+strSystTitle[f], "", "@0*@2+ @1 + sqrt(@2)*@3", RooArgList(sig_intergral, *bkg_integral, *r, inter_intergral));
-  if (f==0)
-    overall_intergral->SetNameTitle("ggH_norm", "ggH_norm");
+  RooHistFunc* hsigfunc = new RooHistFunc("hsigfunc"+chan+Form("%d", cate_vbf)+strSystTitle[f], "", RooArgSet(*mean, *sigma), *hsighist);
+  Width_integral sig_integral("sig_integral"+chan+Form("%d", cate_vbf)+strSystTitle[f], "", *mean, *sigma, RooArgList(*hsigfunc));
+  RooFormulaVar overall_integral("ggH_norm"+strSystTitle[f], "", "@0*@2+ @1 + sqrt(@2)*@3", RooArgList(sig_integral, *bkg_integral, *r, inter_integral));
+  if (f==0) overall_integral.SetNameTitle("ggH_norm", "ggH_norm");
 
-  Width_conv_integral *convpdf_spline_integral=new Width_conv_integral("ggH", "ggH", *mreco, *mean, *sigma, *r, RooArgList(pdf_x, pdf_ggzz, dcrReso, *hsigfunc, *hintfunc), *phase_cos_fix, *phase_sin_fix, *effxkf_sig, *effxkf_bkg);
+  Width_conv_integral* convpdf_spline_integral=new Width_conv_integral("ggH", "ggH", *mreco, *mean, *sigma, *r, RooArgList(pdf_x, pdf_ggzz, dcrReso, *hsigfunc, *hintfunc), *phase_cos_fix, *phase_sin_fix, *effxkf_sig, *effxkf_bkg);
   Width_conv_integral convpdf_spline_integral_up("ggH_Res"+chan+"Up", "ggH"+chan+"Up", *mreco, *mean, *sigma, *r, RooArgList(pdf_x, pdf_ggzz, dcrReso_up, *hsigfunc, *hintfunc), *phase_cos_fix, *phase_sin_fix, *effxkf_sig, *effxkf_bkg);
   Width_conv_integral convpdf_spline_integral_dn("ggH_Res"+chan+"Down", "ggH"+chan+"Down", *mreco, *mean, *sigma, *r, RooArgList(pdf_x, pdf_ggzz, dcrReso_dn, *hsigfunc, *hintfunc), *phase_cos_fix, *phase_sin_fix, *effxkf_sig, *effxkf_bkg);
   w.import(*convpdf_spline_integral, RecycleConflictNodes());
@@ -513,10 +513,10 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
 
   mean->setVal(125);
   sigma->setVal(0.004);
-  cout<< sig_intergral.getVal()<<"\t"<< bkg_integral->getVal()<<"\t"<<inter_intergral.getVal()<<endl;
+  cout<< sig_integral.getVal()<<"\t"<< bkg_integral->getVal()<<"\t"<<inter_integral.getVal()<<endl;
 
-  overall_intergral.plotOn(frame_width);
-  //	frame_width->Draw();
+  overall_integral.plotOn(frame_width);
+  //frame_width->Draw();
 
   mzz->setConstant(0);
   mean->setConstant(0);
@@ -528,7 +528,7 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
   sigma->setVal(0.004);
   r->setVal(1);
 
-  w.import(overall_intergral, RecycleConflictNodes());
+  w.import(overall_integral, RecycleConflictNodes());
 
   //frame->Draw();
   //return;
@@ -536,25 +536,20 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
   cout << mreco->getBins();
 
   TString filename = "workspace125_cat/hzz4l_"+chan+Form("%dS_13TeV.input_func_cat.root", cate_vbf);
-  if (onshell)
-    filename = "workspace125_onshell_cat/hzz4l_"+chan+Form("%dS_13TeV.input_func_cat.root", cate_vbf);
-  TFile *fwor=new TFile(filename, "recreate");
+  if (onshell) filename = "workspace125_onshell_cat/hzz4l_"+chan+Form("%dS_13TeV.input_func_cat.root", cate_vbf);
+  TFile* fwor=new TFile(filename, "recreate");
   fwor->cd();
   w.Write();
   fwor->Close();
   return;
 }
 
-void clean_cat(TString chan="4e",bool cat_vbf=0, bool onshell=0){
-	gROOT->ProcessLine("gSystem->AddIncludePath(\"-I$ROOFITSYS/include/\")");
-	gROOT->ProcessLine("gSystem->Load(\"libRooFit\")");
-	gROOT->ProcessLine("gSystem->Load(\"libHiggsAnalysisCombinedLimit.so\")");
-	dosomething(chan,cat_vbf,onshell);
-//	dosomething("2e2mu",0,0);
-//	dosomething("4e",0,0);
-//	dosomething("4mu",0,0);
-//	dosomething("2e2mu",1,0);
-//	dosomething("4e",1,0);
-//	dosomething("4mu",1,0);
-
+void clean(TString chan="4e", bool cat_vbf=0, bool onshell=0){
+  dosomething(chan, cat_vbf, onshell);
+  //dosomething("2e2mu",0,0);
+  //dosomething("4e",0,0);
+  //dosomething("4mu",0,0);
+  //dosomething("2e2mu",1,0);
+  //dosomething("4e",1,0);
+  //dosomething("4mu",1,0);
 }
