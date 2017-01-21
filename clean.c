@@ -59,7 +59,7 @@ void dosomething(TString chan ="2e2mu",bool cate_vbf =false,bool onshell=false){
                 1.5794,1.9007,2.7310
 	};
 
-	double eff[3][11]={
+	double eff[3][3]={
 		//10% before
 		//    4e
 //		-4.413834E+00,4.616797E+00,-4.159802E+02,3.640200E+02, 1.981811E+00, 1.056963E-03,-3.426846E-07,1.598360E-01, 1.600000E+02,5.811111E+01,2.579534E-11,
@@ -82,30 +82,29 @@ void dosomething(TString chan ="2e2mu",bool cate_vbf =false,bool onshell=false){
 ////		ggH->0p_2e2mu_param_0:
 //		-4.45,4.58669,-398.384,316.466,2.99933,0.00206663,-8.44269e-07,0.124652,160,48.1899,1.05772e-10
 
-	
-//	ggH->0p_4e_param_0:
-                -4.4781,4.56478,-410.689,302.175,3.54126,0.00226419,-9.08486e-07,0.0861973,160,45.6037,1.07622e-10,
-//      ggH->0p_4mu_param_0:
-                -4.44313,4.59816,-2313.39,1129.31,3.13553,0.00269624,-1.20507e-06,-9.71235,-105.225,79.0966,1.66983e-10,
-//      ggH->0p_2e2mu_param_0:              
-                -4.45465,4.5858,-313.199,295.457,3.09284,0.00192647,-7.78952e-07,0.36715,105.723,81.4614,9.69396e-11
-};
+//		ggH->0p_4e_param_0:
+		-4.4781,4.56478,3.54126,
+	//	ggH->0p_4mu_param_0:
+		-4.44313,4.59816,-2.7982,
+	//	ggH->0p_2e2mu_param_0:
+		-4.45465,4.5858,-3.18379
+	};
 
 	double dcbPara_2nd[6][3];
-	double effsig[11];
+	double effsig[3];
 
 	if (chan=="4e")   {
 		for (int i=0;i<6;i++){for(int j=0;j<3;j++){dcbPara_2nd[i][j]= dcbPara_4e_2nd[i][j];}}
-		for (int i=0;i<11;i++){effsig[i]=eff[0][i];}
+		for (int i=0;i<3;i++){effsig[i]=eff[0][i];}
 
 	}
 	if (chan=="4mu")  {
 		for (int i=0;i<6;i++){for(int j=0;j<3;j++){dcbPara_2nd[i][j]= dcbPara_4mu_2nd[i][j];}}
-		for (int i=0;i<11;i++){effsig[i]=eff[1][i];}
+		for (int i=0;i<3;i++){effsig[i]=eff[1][i];}
 	}
 	if (chan=="2e2mu") {
 		for (int i=0;i<6;i++){for(int j=0;j<3;j++){dcbPara_2nd[i][j]= dcbPara_2e2mu_2nd[i][j];}}
-		for (int i=0;i<11;i++){effsig[i]=eff[2][i];}
+		for (int i=0;i<3;i++){effsig[i]=eff[2][i];}
 	}
 
 
@@ -274,10 +273,9 @@ TGraph* ggZZ_kf [5];
 	sigma->setRange(0.00005,100.);
 	mean->setVal(125);
 	sigma->setVal(0.004165);
-// selection here based on categories
-	TString formu_2nd=" @1+@0*@2+@0*@0*@3";
 
-//	TString formu_2nd = "@0+@1+@2";
+//	TString formu_2nd=" (@0<@1)*(@3+@0*@4+@0*@0*@5 ) + ( @0>=@1 && @0<@2)*(@6+@0*@7+@0*@0*@8) + (@0>=@2)*(@9+@0*@10+@0*@0*@11)";	
+	TString formu_2nd = "@0+@1+@2";
 
 	RooArgList formuList_a1;
 	RooArgList formuList_a2;
@@ -298,8 +296,6 @@ TGraph* ggZZ_kf [5];
 	RooConstVar* n1_p0_0_2nd[3] ;
 	RooConstVar* n2_p0_0_2nd[3] ;
 	RooConstVar* sigma_p0_0_2nd[3] ;
-
-// chaneg the line below to i=icat; i<icat+1
 	for(int i =0; i<3;i++){
 		a1_p0_0_2nd[i]= new RooConstVar(Form("%s_%d_a1_p0_0_2nd",chan.Data(),i),Form("%s_%d_a1_p0_0_2nd",chan.Data(),i),dcbPara_2nd[0][i]);
 		a2_p0_0_2nd[i]= new RooConstVar(Form("%s_%d_a2_p0_0_2nd",chan.Data(),i),Form("%s_%d_a2_p0_0_2nd",chan.Data(),i),dcbPara_2nd[1][i]);
@@ -346,9 +342,9 @@ int f=0;
 
 	for(int i =0;i<nbins*2;i++){
 		double cva = low+ i*(high-low)/double(nbins)/2.;
-		double effval_sig = (effsig[0]+effsig[1]*TMath::Erf( (cva-effsig[2])/effsig[3] ))*(effsig[4]+effsig[5]*cva+effsig[6]*cva*cva+effsig[10]*cva*cva*cva)+effsig[7]*TMath::Gaus(cva,effsig[8],effsig[9]);
+//		double effval_sig = (effsig[0]+effsig[1]*TMath::Erf( (cva-effsig[2])/effsig[3] ))*(effsig[4]+effsig[5]*cva+effsig[6]*cva*cva+effsig[10]*cva*cva*cva)+effsig[7]*TMath::Gaus(cva,effsig[8],effsig[9]);
 //		double effcate = 2.572353e-02;
-//              double effval_sig = effsig[0];
+              double effval_sig = effsig[0];
 		double effcate = 0.0387026; 
 		if(!cate_vbf)
 			effcate = 1-effcate;
@@ -405,13 +401,13 @@ int f=0;
 	//pdf_ggzz.plotOn(frame_mzz);
 	pdf_x.plotOn(frame_mzz);
 
-	sigma->setVal(5.);
-	convpdf_spline.plotOn(frame);
-	sigma->setVal(1.);
-	convpdf_spline.plotOn(frame,LineColor(2));
+//	sigma->setVal(5.);
+//	convpdf_spline.plotOn(frame);
+//	sigma->setVal(1.);
+//	convpdf_spline.plotOn(frame,LineColor(2));
 	sigma->setVal(0.004);
-	convpdf_spline[f]->plotOn(frame,LineColor(f+1));
-	frame->Draw();
+//	convpdf_spline[f]->plotOn(frame,LineColor(f+1));
+	//frame->Draw();
 ////frame_mzz->Draw();
 
 	r->setVal(0);
