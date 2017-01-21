@@ -1,8 +1,8 @@
 /** Things to remember later
 *  mzz range defined by ggZZ workspace, create 2 versions for onshell and offshell
 *  give different ggzz RooKeysPdf name for 2e2mu and 4e
-* 
- ****/
+*
+****/
 #include <iostream>
 #include <cmath>
 #include <vector>
@@ -249,47 +249,47 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
 
   /**** calculate the xsec after kfactor ****/
   /*
-      double sum=0;
-      double sum_ori=0;
+  double sum=0;
+  double sum_ori=0;
 
-      mean->setVal(125);
-      sigma->setVal(0.004);
+  mean->setVal(125);
+  sigma->setVal(0.004);
 
-      for (int i =0;i<100;i++){
-      double ma = 125-10*0.004+0.2*0.004*i;
-      mzz->setVal(ma);
-      double  kfa = ggZZ_kf->Eval(ma);
-      double  pdfval = pdf_ggzz.getVal(*mzz);
-      double rev = pdfval*kfa*0.2*0.004;
-      sum+=rev;
-      sum_ori+=rev/kfa;
-      }
-      cout << sum<< "\t"<< sum_ori<<endl;
-      for(int i =1;i<20;i++){
-      double ma = 125-10*0.004-i;
-      mzz->setVal(ma);
-      double  kfa = ggZZ_kf->Eval(ma);
-      double  pdfval = pdf_ggzz.getVal(*mzz);
-      double rev = pdfval*kfa;
-      sum+=rev;
-      sum_ori+=rev/kfa;
-      }
-      cout << sum<< "\t"<< sum_ori<<endl;
-      for(int i =1;i<1000;i++){
-      //    for(int i =1;i<16;i++){
-      double ma = 125+10*0.004+i;
-      mzz->setVal(ma);
-      double  kfa = ggZZ_kf->Eval(ma);
-      double  pdfval = pdf_ggzz.getVal(*mzz);
-      double rev = pdfval*kfa;
-      sum+=rev;
-      sum_ori+=rev/kfa;
-      if(ma>140&&ma<140.5)
-      cout << sum<< "\t"<< sum_ori<<endl;
-      }
-      cout << sum<< "\t"<< sum_ori<<endl;
-      return;
-      */
+  for (int i =0;i<100;i++){
+  double ma = 125-10*0.004+0.2*0.004*i;
+  mzz->setVal(ma);
+  double  kfa = ggZZ_kf->Eval(ma);
+  double  pdfval = pdf_ggzz.getVal(*mzz);
+  double rev = pdfval*kfa*0.2*0.004;
+  sum+=rev;
+  sum_ori+=rev/kfa;
+  }
+  cout << sum<< "\t"<< sum_ori<<endl;
+  for(int i =1;i<20;i++){
+  double ma = 125-10*0.004-i;
+  mzz->setVal(ma);
+  double  kfa = ggZZ_kf->Eval(ma);
+  double  pdfval = pdf_ggzz.getVal(*mzz);
+  double rev = pdfval*kfa;
+  sum+=rev;
+  sum_ori+=rev/kfa;
+  }
+  cout << sum<< "\t"<< sum_ori<<endl;
+  for(int i =1;i<1000;i++){
+  //    for(int i =1;i<16;i++){
+  double ma = 125+10*0.004+i;
+  mzz->setVal(ma);
+  double  kfa = ggZZ_kf->Eval(ma);
+  double  pdfval = pdf_ggzz.getVal(*mzz);
+  double rev = pdfval*kfa;
+  sum+=rev;
+  sum_ori+=rev/kfa;
+  if(ma>140&&ma<140.5)
+  cout << sum<< "\t"<< sum_ori<<endl;
+  }
+  cout << sum<< "\t"<< sum_ori<<endl;
+  return;
+  */
 
   //TFile* fbkge = new TFile ("/afs/cern.ch/work/x/xiaomeng/test/myWorkingArea/highmass/Fit/whatthefuck/bkg_eff.root");
   //TGraph* eff_bkg =  (TGraph*)fbkge->Get("bkgeff_"+chan);
@@ -493,6 +493,7 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
       hsig->Fill(mean->getVal(), sigma->getVal(), sexp);
     }
   }
+  r->setVal(1);
 
   RooDataHist* hinthist= new RooDataHist("hinthist"+chan+Form("%d", cate_vbf)+strSystTitle[f], "hinthist"+chan+Form("%d", cate_vbf)+strSystTitle[f], RooArgSet(*mean, *sigma), hint);
   RooHistFunc* hintfunc = new RooHistFunc("hintfunc"+chan+Form("%d", cate_vbf)+strSystTitle[f], "", RooArgSet(*mean, *sigma), *hinthist);
@@ -513,7 +514,7 @@ void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false
 
   mean->setVal(125);
   sigma->setVal(0.004);
-  cout<< sig_integral.getVal()<<"\t"<< bkg_integral->getVal()<<"\t"<<inter_integral.getVal()<<endl;
+  cout << sig_integral.getVal() << "\t" << bkg_integral->getVal() << "\t" << inter_integral.getVal() << endl;
 
   overall_integral.plotOn(frame_width);
   //frame_width->Draw();
