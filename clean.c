@@ -3,7 +3,39 @@
  * give different ggzz RooKeysPdf name for 2e2mu and 4e
  *
  ****/
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TFile.h"
+#include "TDirectory.h"
+#include "TStyle.h"
+#include "TMath.h"
+#include "TSpline.h"
+#include "TGraph.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "RooRealProxy.h"
+#include "RooCategoryProxy.h"
+#include "RooAbsReal.h"
+#include "RooRealVar.h"
+#include "RooConstVar.h"
+#include "RooAbsPdf.h"
+#include "HZZ2L2QRooPdfs.h"
+#include "HZZ4L_RooHighmass.h"
+#include "RooDataHist.h"
+#include "RooGaussian.h"
+#include "RooKeysPdf.h"
+#include "RooExtendPdf.h"
+#include "RooFormulaVar.h"
+#include "RooAbsCategory.h"
+#include "Riostream.h" 
+#include "RooWorkspace.h"
+#include "SplinePdf.h"
+
 using namespace std;
+using namespace TMath;
 using namespace RooFit;
 
 void dosomething(TString chan ="2e2mu", bool cate_vbf =false, bool onshell=false){
