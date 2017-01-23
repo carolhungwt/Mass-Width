@@ -1,4 +1,8 @@
 *.o
 *.d
 *.so
+prepareInputs/workspace*
+prepareInputs/*.o
+prepareInputs/*.d
+prepareInputs/*.so
 
