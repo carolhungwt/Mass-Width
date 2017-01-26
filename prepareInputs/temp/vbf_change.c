@@ -3,10 +3,57 @@
  * give different ggzz RooKeysPdf name for 2e2mu and 4e
  *
  ****/
+
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TFile.h"
+#include "TDirectory.h"
+#include "TStyle.h"
+#include "TMath.h"
+#include "TSpline.h"
+#include "TGraph.h"
+#include "TCanvas.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "RooRealProxy.h"
+#include "RooCategoryProxy.h"
+#include "RooAbsReal.h"
+#include "RooRealVar.h"
+#include "RooConstVar.h"
+#include "RooAbsPdf.h"
+#include "RooPlot.h"
+#include "HZZ2L2QRooPdfs.h"
+#include "HZZ4L_RooHighmass.h"
+#include "Width_conv.h"
+#include "Width_conv_offshell.h"
+#include "Width_integral.h"
+#include "Width_conv_integral.h"
+#include "RooDataHist.h"
+#include "RooGaussian.h"
+#include "RooKeysPdf.h"
+#include "RooExtendPdf.h"
+#include "RooFormulaVar.h"
+#include "RooAbsCategory.h"
+#include "Riostream.h" 
+#include "RooWorkspace.h"
+#include "SplinePdf.h"
+
 using namespace std;
+using namespace TMath;
 using namespace RooFit;
 
-void dosomething(TString chan ="2e2mu",unsigned int iCat =0,bool onshell=false){
+
+
+void vbf_change(TString chan ="2e2mu",unsigned int iCat =0,bool onshell=true){
+
+	TString filename;
+	if(onshell) filename = "workspace125_onshell/hzz"+chan+Form("_13TeV.input_func_vbf_cat%d.root", iCat);
+	else filename = "workspace125/hzz"+chan+Form("_13TeV.input_func_vbf_cat%d.root", iCat);
+	TFile* fwor=new TFile(filename, "recreate");
+	fwor->cd();
 
 	double lumi = 12.9;
 	double ggzz_xsec = 0.488;
@@ -29,56 +76,35 @@ void dosomething(TString chan ="2e2mu",unsigned int iCat =0,bool onshell=false){
 			}
 		}
 
-	gStyle->SetOptStat(0);
-double dcbPara_2e2mu_2nd[6][3][3]={ // [parameter type][category][quadratic coef]
-    { {1.1080,0,0}, {1.1761,0,0}, {0.90704,0,0} },
-    { {1.8178,0,0}, {1.9948,0,0}, {1.6780,0,0} },
-    { {-0.213611,0,0}, {-0.194039,0,0}, {-0.383733,0,0} },
-    { {2.2127,0,0}, {2.2538,0,0}, {3.8381,0,0} },
-    { {2.7920,0,0}, {2.4312,0,0}, {3.4922,0,0} },
-    { {1.0681,0,0}, {1.1472,0,0}, {1.7863,0,0} }
-  };
-  double dcbPara_4mu_2nd[6][3][3]=
-  {
-    { {1.0828,0,0}, {1.1540,0,0}, {0.97480,0,0} },
-    { {1.8698,0,0}, {2.0066,0,0}, {1.7134,0,0} },
-    { {-0.214728,0,0}, {-0.227859,0,0}, {-0.392360,0,0} },
-    { {2.4523,0,0}, {2.4020,0,0}, {3.8170,0,0} },
-    { {2.6737,0,0}, {2.3991,0,0}, {4.0369,0,0} },
-    { {1.1136,0,0}, {1.1839,0,0}, {1.7805,0,0} }
-  };
-  double dcbPara_4e_2nd[6][3][3]=
-  {
-    { {1.0455,0,0}, {1.0460,0,0}, {1.0169,0,0} },
-    { {1.9230,0,0}, {2.1161,0,0}, {1.7821,0,0} },
-    { {-0.303135,0,0}, {-0.372309,0,0}, {-0.724154,0,0} },
-    { {2.7708,0,0}, {3.1272,0,0}, {3.5144,0,0} },
-    { {2.3424,0,0}, {2.1441,0,0}, {3.3808,0,0} },
-    { {1.3516,0,0}, {1.5370,0,0}, {2.3373,0,0} }
-  };
-
-
+	 gStyle->SetOptStat(0);
+	  double dcbPara_2e2mu_2nd[6][3][3]={ // [parameter type][category][quadratic coef]
+	    { {1.0244,0,0}, {1.0818,0,0}, {1.0336,0,0} },
+	    { {1.9154,0,0}, {2.1662,0,0}, {1.8703,0,0} },
+	    { {-0.278857,0,0}, {-0.333179,0,0}, {-0.613171,0,0} },
+	    { {2.9629,0,0}, {2.9260,0,0}, {3.4551,0,0} },
+	    { {2.3241,0,0}, {2.0013,0,0}, {2.9526,0,0} },
+	    { {1.2975,0,0}, {1.4417,0,0}, {2.1706,0,0} }
+	  };
+	  double dcbPara_4mu_2nd[6][3][3]=
+	  {
+	    { {1.2651,0,0}, {1.2368,0,0}, {1.3985,0,0} },
+	    { {2.0250,0,0}, {2.1748,0,0}, {2.0196,0,0} },
+	    { {-0.219142,0,0}, {-0.174066,0,0}, {-0.249654,0,0} },
+	    { {1.8784,0,0}, {2.0663,0,0}, {2.0315,0,0} },
+	    { {2.4881,0,0}, {1.7939,0,0}, {2.8807,0,0} },
+	    { {1.0501,0,0}, {1.0493,0,0}, {1.4110,0,0} }
+	  };
+	  double dcbPara_4e_2nd[6][3][3]=
+	  {
+	    { {0.96764,0,0}, {0.95576,0,0}, {1.0171,0,0} },
+	    { {1.9963,0,0}, {1.9721,0,0}, {1.6302,0,0} },
+	    { {-0.383618,0,0}, {-0.544708,0,0}, {-1.05107,0,0} },
+	    { {3.7472,0,0}, {4.4534,0,0}, {4.1982,0,0} },
+	    { {3.5587,0,0}, {2.3467,0,0}, {4.8193,0,0} },
+	    { {1.5794,0,0}, {1.9007,0,0}, {2.7310,0,0} }
+	  };
 
 	double eff[3][11]={
-//// 4e
-//     -4.409236E+00, 4.628614E+00,-8.559665E+01,1.271156E+02,1.593683E+00,1.585147E-03,-6.754524E-07,1.789210E-02,1.636138E+02,4.799723E+01,8.811266E-11,
-////    4mu
-//      -4.362745E+00,4.659031E+00,-9.937283E+01,1.333036E+02,1.685288E+00,1.736186E-03,-8.699309E-07,2.834451E-02,1.637809E+02,3.856606E+01, 1.387049E-10,
-////    2e2mu
-//     -4.410208E+00, 4.628288E+00, -8.355707E+01, 1.227452E+02, 1.952608E+00, 1.877126E-03, -8.679733E-07, 1.838955E-02, 1.717942E+02, 2.085859E+01, 1.263515E-10
-//4e
-//-4.41139,4.62286,-46.1825,100.856,1.53391,0.0013975,-6.15721e-07,0.0147732,192.54,13.5543,8.38385e-11,
-////4mu
-//-4.42781,4.61174,-77.899,111.718,2.43934,0.00247607,-1.24247e-06,0.0218535,184.11,10,1.97244e-10,
-////2e2mu
-//-4.39108,4.64497,-153.433,172.265,1.53766,0.00137698,-6.3804e-07,0.0474389,160,37.524,9.24412e-11
-//
-////VBF->0p_4e_param_0:
-//-4.44635,4.59326,-59.0953,102.861,2.17093,0.00183632,-7.35685e-07,0.0187474,188.212,13.7126,8.75885e-11,
-////VBF->0p_4mu_param_0:
-//-4.39564,4.64072,-244.111,226.617,1.9519,0.00173683,-7.75353e-07,0.0829745,160,46.8172,1.06192e-10,
-////VBF->0p_2e2mu_param_0:
-//-4.40817,4.62868,-139.383,159.416,1.76159,0.00160184,-7.16129e-07,0.0416353,160,39.5239,9.86506e-11
 
 //VBF->0p_4e_param_0:
 -4.47849,4.5637,-80.8308,107.137,3.38191,0.00298955,-1.33756e-06,0.0179383,188.843,13.8356,1.83965e-10,
@@ -88,22 +114,22 @@ double dcbPara_2e2mu_2nd[6][3][3]={ // [parameter type][category][quadratic coef
 -4.43582,4.60461,-196.311,191.783,2.22227,0.00204376,-9.41486e-07,0.0718321,148.027,50.0609,1.35394e-10
 	};
 
- double dcbPara_2nd[6][3];
-  double* effsig;
+	double dcbPara_2nd[6][3];
+	double* effsig;
 
-  if (chan=="4e"){
-    for (int p=0; p<6; p++){ for (int k=0; k<3; k++) dcbPara_2nd[p][k]=dcbPara_4e_2nd[p][iCat][k]; }
-    effsig=eff[0];
-  }
-  if (chan=="4mu"){
-    for (int p=0; p<6; p++){ for (int k=0; k<3; k++) dcbPara_2nd[p][k]=dcbPara_4mu_2nd[p][iCat][k]; }
-    effsig=eff[1];
-  }
-  if (chan=="2e2mu"){
-    for (int p=0; p<6; p++){ for (int k=0; k<3; k++) dcbPara_2nd[p][k]=dcbPara_2e2mu_2nd[p][iCat][k]; }
-    effsig=eff[2];
-  }
 
+	  if (chan=="4e"){
+	    for (int p=0; p<6; p++){ for (int k=0; k<3; k++) dcbPara_2nd[p][k]=dcbPara_4e_2nd[p][iCat][k]; }
+	    effsig=eff[0];
+	  }
+	  if (chan=="4mu"){
+	    for (int p=0; p<6; p++){ for (int k=0; k<3; k++) dcbPara_2nd[p][k]=dcbPara_4mu_2nd[p][iCat][k]; }
+	    effsig=eff[1];
+	  }
+	  if (chan=="2e2mu"){
+	    for (int p=0; p<6; p++){ for (int k=0; k<3; k++) dcbPara_2nd[p][k]=dcbPara_2e2mu_2nd[p][iCat][k]; }
+	    effsig=eff[2];
+	  }
 
 
 	double lowarr[2]={100.5,100.5};
@@ -112,7 +138,7 @@ double dcbPara_2e2mu_2nd[6][3][3]={ // [parameter type][category][quadratic coef
 
 	double recolowarr[2]={104,105};
 	double recohigharr[2]={1604.,140.};
-	const int reconbinsarr[2]={750,100};
+	//const int reconbinsarr[2]={750,100};
 
 	const double low= lowarr[onshell];
 	const double high=higharr[onshell];
@@ -120,52 +146,61 @@ double dcbPara_2e2mu_2nd[6][3][3]={ // [parameter type][category][quadratic coef
 
 	const double low_reco=recolowarr[onshell];
 	const double high_reco=recohigharr[onshell];
-	const int nbins_reco=reconbinsarr[onshell];
+	//const int nbins_reco=reconbinsarr[onshell];
 
 	cout << low<<"\t"<<high<<endl;
 	cout << low_reco<<"\t"<<high_reco<<endl;
 
-	TString ap = (onshell? "_onshell":"");
-	TFile *fpdfbkg = new TFile("vbfpdfs"+ap+".root");
-	RooWorkspace *wbkg =( RooWorkspace*)fpdfbkg->Get ("w"); 
+	TString ap = (onshell ? "_onshell" : "");	
+	TFile *fpdfbkg = new TFile("/afs/cern.ch/user/w/wahung/work/public/CMSSW_7_1_5/src/HiggsAnalysis/CombinedLimit/Mass-Width/Mass-Width_carol/prepareInputs/vbfpdfs"+ap+".root");
+	RooWorkspace *wbkg =( RooWorkspace*)fpdfbkg->Get ("w"); 	
+
 
 	//RooRealVar* mzz = new RooRealVar("ZZMass","M_{ZZ} (GeV)",125,low,high);
 	RooRealVar* mzz = wbkg->var("ZZMass"); 
 	RooRealVar* mreco= new RooRealVar("mreco","M_{ZZ} (GeV)",125,low_reco,high_reco);
-	RooRealVar* mdiff= new RooRealVar("mdiff","M_{ZZ} (GeV)",125,low_reco,high_reco);
+	//RooRealVar* mdiff= new RooRealVar("mdiff","M_{ZZ} (GeV)",125,low_reco,high_reco);
 
 	RooRealVar *r= new RooRealVar("r","signal strength",1.,0.000,1000);
 	RooRealVar *rvbf_ggh= new RooRealVar("rvbf_ggh","rvb_ggh",1.,0.000,1000);
 	RooFormulaVar *rvbf= new RooFormulaVar("rvbf","@0*@1",RooArgSet(*r,*rvbf_ggh));
-
+	
 	RooRealVar* mean = new RooRealVar("mean_pole","mean_pole",125,100,180);
-	RooRealVar* sigma= new RooRealVar("sigma_pole","sigma_pole",0.00418,0.,10.);
+	RooRealVar* sigma= new RooRealVar("sigma_pole","sigma_pole",0.00407,0.,10.);
 
-	RooConstVar* mean_125= new RooConstVar("mean_125","mean_125",125);
-	RooConstVar* sigma_125= new RooConstVar("sigma_125","sigma_125",0.00407);
+	//RooConstVar* mean_125= new RooConstVar("mean_125","mean_125",125);
+	//RooConstVar* sigma_125= new RooConstVar("sigma_125","sigma_125",0.00407);
 
-	RooPlot* frame= mreco->frame(low_reco,high_reco) ;
+	//RooPlot* frame= mreco->frame(low_reco,high_reco) ;
 	//	RooPlot* frame= mreco->frame(150,250) ;
-	RooPlot* frame_mzz= mzz->frame(Title("Z mass")) ;
+	//RooPlot* frame_mzz= mzz->frame(Title("Z mass")) ;
+	TCanvas* cframe[4];
+	for (unsigned int c=0; c<4;c++) cframe[c]=new TCanvas(Form("c%i",c),"", 750,700);
+	RooPlot* frame=mreco->frame(low_reco,high_reco);
+	RooPlot* frame_mzz=mzz->frame(Title("ZZ Mass"));
+
 	RooPlot* frame_width= sigma->frame(Title("width")) ;
 	RooPlot* frame_mean= mean->frame(Title("mean")) ;
+	cframe[3]->cd();	frame_mean->Draw();
+	fwor->cd();
+	
 
-	TFile *flo=new TFile("width_new_spline.root","read");
-	TString chn = "2e2mu";
+	TFile *flo=new TFile("/afs/cern.ch/user/w/wahung/work/public/CMSSW_7_1_5/src/HiggsAnalysis/CombinedLimit/Mass-Width/Mass-Width_carol/prepareInputs/width_new_spline.root","read");
+	TString chn = "";
 	if(chan!="2e2mu")
 		chn="4e";
-	TSpline3 *lo=(TSpline3*) flo->Get("br_"+chn);
+	TSpline3 *lo=(TSpline3*)flo->Get("sp_xsec_statnom"+chn);
+	fwor->cd();		
 
-	SplinePdf par2_int ("vbfpar2_int"+chan+Form("%d",iCat),"",*mzz,*mean,*sigma,*lo);
-	RooRealVar m_gauss ("m_gauss","",125);
-	RooRealVar w_gauss ("w_gauss","",0.004);
-	RooGaussian gauss("gauss","",*mzz,m_gauss,w_gauss);
+	  SplinePdf par2_int("par2_int"+chan+Form("%d", iCat), "", *mzz, *mean, *sigma, *lo);
+	  RooRealVar m_gauss("m_gauss", "", 125);
+	  RooRealVar w_gauss("w_gauss", "", 0.004);
+	  RooGaussian gauss("gauss", "", *mzz, m_gauss, w_gauss);
 
-	TString pdfn = "2e2mu";
-	if(chan!="2e2mu")
-		pdfn = "4e";
-	RooKeysPdf *pdfbkg = wbkg->pdf("vbfpdfbkg_"+pdfn);
-
+ 	  TString pdfn = "2e2mu";
+   	  if (chan!="2e2mu") pdfn = "4e";
+	  RooKeysPdf *pdfbkg = (RooKeysPdf*)wbkg->pdf("vbfpdfbkg_"+pdfn); 
+	
 
 	RooConstVar *ggzznorm= new RooConstVar("vbfbkgnorm"+chan+Form("%d",iCat),"",lumi*ggzz_xsec);
 	RooExtendPdf pdf_ggzz("vbfpdf_bkg"+chan+Form("%d",iCat),"vbfpdf_bkg"+chan+Form("%d",iCat),*pdfbkg,*ggzznorm);
@@ -177,7 +212,7 @@ double dcbPara_2e2mu_2nd[6][3][3]={ // [parameter type][category][quadratic coef
 	RooExtendPdf pdf_x("vbfpdf_x"+chan+Form("%d",iCat),"vbfpdf_x"+chan+Form("%d",iCat),par2_int,*xnorm);
 
 
-  TFile *fphase_noweight=new TFile("fgraph_vbf_phase.root");
+  TFile *fphase_noweight=new TFile("/afs/cern.ch/user/w/wahung/work/public/CMSSW_7_1_5/src/HiggsAnalysis/CombinedLimit/Mass-Width/Mass-Width_carol/prepareInputs/fgraph_vbf_phase.root");
   TGraph *cosfunc = (TGraph*)fphase_noweight->Get("cos");
   TGraph *sinfunc = (TGraph*)fphase_noweight->Get("sin");
 
@@ -192,7 +227,7 @@ double dcbPara_2e2mu_2nd[6][3][3]={ // [parameter type][category][quadratic coef
 	TGraph *effxkf_sig= new TGraph(nbins);
 	TGraph *effxkf_bkg= new TGraph(nbins);
 
-  TFile *fxsec=new TFile("xsec.root");
+  TFile *fxsec=new TFile("/afs/cern.ch/user/w/wahung/work/public/CMSSW_7_1_5/src/HiggsAnalysis/CombinedLimit/Mass-Width/Mass-Width_carol/prepareInputs/xsec.root");
   TGraph *vbfxs= (TGraph*)fxsec->Get("vbf");
   TGraph *whxs= (TGraph*)fxsec->Get("wh");
   TGraph *zhxs= (TGraph*)fxsec->Get("zh");
@@ -204,7 +239,9 @@ double dcbPara_2e2mu_2nd[6][3][3]={ // [parameter type][category][quadratic coef
     double m4l = cva;
     //if (m4l > 900.) m4l = 900.;
     //double effcate = 3.844411e-01 + 2.755289e-04*m4l + -5.098494e-07*m4l*m4l + 2.491489e-10*m4l*m4l*m4l;
-		double effcate_sig = 0.476383 - 4.94232e-05*m4l;
+		double effcate_sig=1./3.;
+		
+    	//double effcate = 1.0/3.0;
 		double effcate_bkg = (m4l < 200 ? (3.849250e-01 + 2.677220e-03*(m4l-200)) : (m4l < 300 ? 3.849250e-01+1.520690e-04*(m4l-200) + -1.379680e-07*(m4l-200)*(m4l-200) : +1.426950e+02/(m4l+3.971120e+02) - 1.426950e+02/(300+3.971120e+02) + 3.849250e-01+1.520690e-04*100 + -1.379680e-07*100*100 )) ;
 		double vbffrac=1;
 		if(cva<2000)
@@ -222,11 +259,11 @@ double dcbPara_2e2mu_2nd[6][3][3]={ // [parameter type][category][quadratic coef
 //			va_bkg*=0.95;
 //			va_sig*=0.95;
 //		}
+//		return;
 		effxkf_sig->SetPoint(effxkf_sig->GetN(),cva,va_sig);
 		effxkf_bkg->SetPoint(effxkf_bkg->GetN(),cva,va_bkg);
 	}
 	effxkf_sig->SetName("vbfsigeffxkf"+chan+Form("%d",iCat));
-
 	effxkf_bkg->SetName("vbfbkgeffxkf"+chan+Form("%d",iCat));
 
 	//effxkf_sig->Draw("al");
@@ -238,7 +275,7 @@ double dcbPara_2e2mu_2nd[6][3][3]={ // [parameter type][category][quadratic coef
 	mean->setVal(125);
 	sigma->setVal(0.004165);
 
-	TString formu_2nd="@1+@2*@0+@3*pow(@0,2)";
+	TString formu_2nd="@1+@2*@0+@3*pow(@0,2)";	
 
 	RooArgList formuList_a1;
 	RooArgList formuList_a2;
@@ -304,40 +341,42 @@ double dcbPara_2e2mu_2nd[6][3][3]={ // [parameter type][category][quadratic coef
 	RooDoubleCB dcrReso_up("dcrReso"+chan+"_up","dcb up"+chan,*mreco,*mzz,*mean_p0_2nd,*sigma_p0_up,*a1_p0_2nd,*n1_p0_2nd,*a2_p0_2nd,*n2_p0_2nd);
 	RooDoubleCB dcrReso_dn("dcrReso"+chan+"_dn","dcb up"+chan,*mreco,*mzz,*mean_p0_2nd,*sigma_p0_dn,*a1_p0_2nd,*n1_p0_2nd,*a2_p0_2nd,*n2_p0_2nd);
 	RooAbsReal *final_integral; 
+	RooAbsPdf* convpdf_spline;
+
 
 if(onshell){
-	Width_conv convpdf_spline("qqH", "qqH",*mreco, *mean, *sigma, *rvbf, RooArgList(pdf_x, pdf_ggzz,dcrReso),*cosfunc, *sinfunc, *effxkf_sig,*effxkf_bkg); 
+	convpdf_spline = new Width_conv("qqH", "qqH",*mreco, *mean, *sigma, *rvbf, RooArgList(pdf_x, pdf_ggzz,dcrReso),*cosfunc, *sinfunc, *effxkf_sig,*effxkf_bkg); 
 //	convpdf_spline.plotOn(frame);
-	w.import(convpdf_spline,RecycleConflictNodes());
+	w.import(*convpdf_spline,RecycleConflictNodes());
 	Width_conv convpdf_spline_up("qqH_Res"+chan+"Up", "qqH_Res"+chan+"Up",*mreco, *mean, *sigma, *r, RooArgList(pdf_x, pdf_ggzz,dcrReso_up),*cosfunc, *sinfunc, *effxkf_sig,*effxkf_bkg); 
 	Width_conv convpdf_spline_dn("qqH_Res"+chan+"Down", "qqH_Res"+chan+"Down",*mreco, *mean, *sigma, *r, RooArgList(pdf_x, pdf_ggzz,dcrReso_dn),*cosfunc, *sinfunc, *effxkf_sig,*effxkf_bkg); 
 	w.import(convpdf_spline_up,RecycleConflictNodes());
 	w.import(convpdf_spline_dn,RecycleConflictNodes());
-	final_integral = convpdf_spline.createIntegral(*mreco);
+	final_integral = convpdf_spline->createIntegral(*mreco);
 }
 else{
-	Width_conv_offshell convpdf_spline("bqqH", "bqqH",*mreco, *mean, *sigma, *rvbf, RooArgList(pdf_x, pdf_ggzz,dcrReso),*cosfunc, *sinfunc, *effxkf_sig,*effxkf_bkg); 
+	convpdf_spline = new Width_conv_offshell("bqqH", "bqqH",*mreco, *mean, *sigma, *rvbf, RooArgList(pdf_x, pdf_ggzz,dcrReso),*cosfunc, *sinfunc, *effxkf_sig,*effxkf_bkg); 
 //	convpdf_spline.plotOn(frame);
 //	w.import(convpdf_spline,RecycleConflictNodes());
 //	Width_conv_offshell convpdf_spline_up("qqH_Res"+chan+"Up", "qqH_Res"+chan+"Up",*mreco, *mean, *sigma, *r, RooArgList(pdf_x, pdf_ggzz,dcrReso_up),*cosfunc, *sinfunc, *effxkf_sig,*effxkf_bkg); 
 //	Width_conv_offshell convpdf_spline_dn("qqH_Res"+chan+"Down", "qqH_Res"+chan+"Down",*mreco, *mean, *sigma, *r, RooArgList(pdf_x, pdf_ggzz,dcrReso_dn),*cosfunc, *sinfunc, *effxkf_sig,*effxkf_bkg); 
-	final_integral = convpdf_spline.createIntegral(*mreco);
+	final_integral = convpdf_spline->createIntegral(*mreco);
 }
 
 	mean->setVal(125);
 	mreco->setVal(126);
 
 	//pdf_ggzz.plotOn(frame_mzz);
-	//pdf_x.plotOn(frame_mzz);
+	pdf_x.plotOn(frame_mzz);
 
-//	sigma->setVal(5.);
-//	convpdf_spline.plotOn(frame);
-//	sigma->setVal(1.);
-//	convpdf_spline.plotOn(frame,LineColor(2));
-//	sigma->setVal(0.004);
-//	convpdf_spline.plotOn(frame,LineColor(8));
-//	frame->Draw();
-//	//frame_mzz->Draw();
+	sigma->setVal(5.);
+	convpdf_spline->plotOn(frame);
+	sigma->setVal(1.);
+	convpdf_spline->plotOn(frame,LineColor(2));
+	sigma->setVal(0.004);
+	convpdf_spline->plotOn(frame,LineColor(8));
+	cframe[0]->cd();	frame->Draw();	fwor->cd();
+    cframe[1]->cd(); 	frame_mzz->Draw(); 	fwor->cd();
 //	return;
 
 //	RooAbsReal *final_integral = convpdf_spline.createIntegral(*mreco);
@@ -413,7 +452,7 @@ else{
 	w.import(convpdf_spline_integral_up,RecycleConflictNodes());
 	w.import(convpdf_spline_integral_dn,RecycleConflictNodes());
 	overall_intergral.plotOn(frame_width);
-	frame_width->Draw();
+	cframe[2]->cd();	frame_width->Draw();	fwor->cd();
 
 	mzz->setConstant(0);
 	mean->setConstant(0);
@@ -425,27 +464,34 @@ else{
 	sigma->setVal(0.004);
 	r->setVal(1);
 
-	convpdf_spline.plotOn(frame,LineColor(2));
+	convpdf_spline->plotOn(frame,LineColor(2));
 	frame->Draw();
 
 	w.import(overall_intergral,RecycleConflictNodes());
 
 	mreco->Print("v");
-	cout << mreco->getBins();
+	cout << "mreco nbins: "<< mreco->getBins()<<endl;
 
-	TString filename = "workspace125/hzz4l_"+chan+Form("_13TeV.input_func_vbf_Cat%d.root",iCat);
-	if(onshell)
-		filename = "workspace125_onshell/hzz4l_"+chan+Form("_13TeV.input_func_vbf_Cat%d.root",iCat);
-	TFile *f=new TFile(filename,"recreate");	
-	f->cd();
 	w.Write();
-	f->Close();
+	for(unsigned int c=0; c<4;c++){
+		cframe[c]->cd();
+		cframe[c]->Modified();
+		cframe[c]->Update();
+		fwor->WriteTObject(cframe[c]);
+		cframe[c]->Close();
+	}
+	flo->Close();
+	fwor->Close();
+	
 	return;
 }
 
-void vbf(TString chan="4e",unsigned int iCat=0, bool onshell=1){
+/*void  vbf(TString chan="4e",unsigned int iCat=0, bool onshell=1){
 	gROOT->ProcessLine("gSystem->AddIncludePath(\"-I$ROOFITSYS/include/\")");
 	gROOT->ProcessLine("gSystem->Load(\"libRooFit\")");
 	gROOT->ProcessLine("gSystem->Load(\"libHiggsAnalysisCombinedLimit.so\")");
-	dosomething(chan,iCat,onshell);
-}
+
+	gSystem->Exec("mkdir -p ./workspace125_onshell/../workspace125/");
+	dosomething(chan, iCat, onshell);
+
+}*/
