@@ -1,0 +1,36 @@
+Combination of hzz4l_4mu_13TeV_func.txt  hzz4l_4e_13TeV_func.txt  hzz4l_2e2mu_13TeV_func.txt
+imax 1 number of bins
+jmax 3 number of processes minus 1
+kmax 19 number of nuisance parameters
+----------------------------------------------------------------------------------------------------------------------------------
+shapes ggH    ch3  ./workspace125_onshell/hzz2e2mu_13TeV.input_func_cat3.root w:$PROCESS w:$PROCESS_$SYSTEMATIC
+shapes qqH    ch3  ./workspace125_onshell/hzz4l_2e2mu_13TeV.input_func_vbf_Cat3.root w:$PROCESS w:$PROCESS_$SYSTEMATIC
+shapes *    ch3  ./workspace_2d_bkg_onshell/hzz4l_2e2mu4S_13TeV.input_func.root w:$PROCESS w:$PROCESS_$SYSTEMATIC
+----------------------------------------------------------------------------------------------------------------------------------
+bin          ch3
+observation  -1
+----------------------------------------------------------------------------------------------------------------------------------
+bin    ch3	ch3	ch3	ch3 	
+process ggH     qqH      bkg_qqzz  bkg_zjet
+process  -1       0        1         2
+rate    1.0000   1.0000  3.278961167	1.991233 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CMS_eff_e               lnN   	1.08    1.08    1.08    - 
+CMS_eff_m               lnN   	1.04     1.04     1.04            - 
+QCDscale_VV             lnN      -       -        1.0285    -
+QCDscale_ggH            lnN      1.09       -      -    		-  
+QCDscale_qqH            lnN      -   	0.997/1.004   -    		-
+PDF_ggH             	lnN      1.05       -      -    		-  
+PDF_qqH             	lnN      -   			1.021    -    		-
+PDF_qqbar               lnN      -       -        1.0342    -   
+lumi_13TeV              lnN      1.062   1.062    1.062     -  
+BRhiggs_hzz4l           lnN      1.02    1.02     -         - 
+CMS_hzz4e_Zjets         lnN      -       -        -         -	
+CMS_hzz2e2mu_Zjets      lnN      -       -        -         0.60/1.45
+CMS_hzz4mu_Zjets        lnN      -       -        -         - 
+JES 			lnN  		0.996 	0.998 		0.996 		0.995
+QCDScale_vbf 		lnN  		0.996 	0.999 		0.994 		0.996	
+EWKscale_VV		shape1    -       -    		1         -  
+Res4mu			shape1    -       -      	-         - 
+Res4e			shape1    -       -    		-         -  
+Res2e2mu		shape1    1       1      	-         - 
