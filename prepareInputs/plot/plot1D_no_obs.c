@@ -11,23 +11,23 @@ void plotScan_fTU_PMF_Twiki(double threshold = 0.49){
   Float_t CMS_zz4l_fai1,CMS_zz4l_fai2,CMS_zz4l_phiai1,deltaNLL;
   double minX=0,minY=0,minLL=20;
 
-  TH1F* h0 = new TH1F("h0","",201,-1-0.005,1+0.005); // 201 points. expected
+  TH1F* h0 = new TH1F("h0","",10,-1-0.005,1+0.005); // 10 points. expected
   TH1F* h0p = new TH1F("h0p","",301,-1-2./600.,1+2./600.); // 301 points, observed
 
-  TGraph* gr[2];
-  TH1F* hContainer[2] = {
-	  h0,h0p
+  TGraph* gr[1];
+  TH1F* hContainer[1] = {
+	  h0, h0p
   };
   double** x = new double* [2];
   double** y = new double* [2];
 
-  t[0]->Add("./fTU_PMF_SM/higgsCombine2D_exp_0_201.MultiDimFit.mH91.2.root");
-  t[1]->Add("./Observed_Fits/higgsCombine2D_obs_1D_fTU_PMF.MultiDimFit.mH91.2.root");
+  t[0]->Add("./higgsCombinescan.MultiDimFit.mH120.123456.root");
+//  t[1]->Add("./Observed_Fits/higgsCombine2D_obs_1D_fTU_PMF.MultiDimFit.mH91.2.root");
 
   t[0]->SetBranchAddress("CMS_zz4l_fai1",&CMS_zz4l_fai1);
   t[0]->SetBranchAddress("deltaNLL",&deltaNLL);
-  t[1]->SetBranchAddress("CMS_zz4l_fai1",&CMS_zz4l_fai1);
-  t[1]->SetBranchAddress("deltaNLL",&deltaNLL);
+//  t[1]->SetBranchAddress("CMS_zz4l_fai1",&CMS_zz4l_fai1);
+//  t[1]->SetBranchAddress("deltaNLL",&deltaNLL);
 
   for (int ev = 0; ev < t[0]->GetEntries(); ev++){
 	  t[0]->GetEntry(ev);
@@ -35,14 +35,14 @@ void plotScan_fTU_PMF_Twiki(double threshold = 0.49){
 	  double bincontent = h0->GetBinContent(binx);
 	  if (bincontent == 0) h0->SetBinContent(binx, 2 * deltaNLL);
   };
-  for (int ev = 0; ev < t[1]->GetEntries(); ev++){
+/*  for (int ev = 0; ev < t[1]->GetEntries(); ev++){
 	  t[1]->GetEntry(ev);
 	  int binx = h0p->GetXaxis()->FindBin(CMS_zz4l_fai1);
 	  double bincontent = h0p->GetBinContent(binx);
 	  if (bincontent == 0) h0p->SetBinContent(binx, 2 * deltaNLL);
   };
-
-  for (int c = 0; c < 2; c++){
+*/
+  for (int c = 0; c < 1; c++){
 	  for (int binx = 5; binx < (hContainer[c]->GetNbinsX() - 4); binx++){
 		  double bincontent = hContainer[c]->GetBinContent(binx);
 		  double bincontent_up = hContainer[c]->GetBinContent(binx + 4);
@@ -60,7 +60,7 @@ void plotScan_fTU_PMF_Twiki(double threshold = 0.49){
 
 
 
-  for (int c = 0; c < 2; c++){
+  for (int c = 0; c < 1; c++){
 	  x[c] = new double[hContainer[c]->GetNbinsX()];
 	  y[c] = new double[hContainer[c]->GetNbinsX()];
 
@@ -161,7 +161,7 @@ void plotScan_fTU_PMF_Twiki(double threshold = 0.49){
   gr[0]->GetYaxis()->SetRangeUser(0., 120.);
   gr[0]->GetXaxis()->SetRangeUser(-1,1);
   gr[0]->Draw("AL");
-  gr[1]->Draw("lsame");
+//  gr[1]->Draw("lsame");
 
   TLegend *leg = new TLegend(0.2,0.7,0.5,0.92);
   leg->SetFillColor(0);
@@ -230,4 +230,8 @@ void plotScan_fTU_PMF_Twiki(double threshold = 0.49){
   c1->SaveAs("can_scan1D_fTU_PMF_Twiki.png");
   c1->SaveAs("can_scan1D_fTU_PMF_Twiki.root");
   c1->SaveAs("can_scan1D_fTU_PMF_Twiki.C");
+}
+
+void plot1D_no_obs(){
+	plotScan_fTU_PMF_Twiki();
 }
