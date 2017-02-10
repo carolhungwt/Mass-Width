@@ -1,8 +1,11 @@
 #include <map>
+#include "TMath.h"
+
 void setColZGradient_OneColor(int col, bool shift = false) {
     const Int_t NRGBs = 2;
     const Int_t NCont = 255;
-    Double_t stops[NRGBs] = { 0.00, 0.06};
+//    Double_t stops[NRGBs] = { 0.00, 0.06};
+    Double_t stops[NRGBs] = { 0.00, 1};
     Double_t red[NRGBs]   = { 1., col==1?0.50:col==2?223./256.:col==3?255./256.:col==4?200./256.:col==5? 25./256.:col==6? 52./256.:col==7?116./256.:0.40 };
     Double_t green[NRGBs] = { 1., col==1?0.50:col==2? 48./256.:col==3?128./256.:col==4?167./256.:col==5?121./256.:col==6?182./256.:col==7?186./256.:0.40 };
     Double_t blue[NRGBs]  = { 1., col==1?0.50:col==2?164./256.:col==3?  0./256.:col==4?  0./256.:col==5?218./256.:col==6?152./256.:col==7?255./256.:0.40 };
@@ -16,6 +19,26 @@ void setColZGradient_OneColor(int col, bool shift = false) {
     TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
     gStyle->SetNumberContours(NCont);
 }
+
+void setColZGrad_Onecolor_mod(bool shift=false){
+const Int_t NCont = 999;
+  const Int_t NRGBs = 7;
+  Double_t stops[NRGBs] ={ 0.00, 0.06, 0.15, 0.75, 0.90, 0.98, 1.00 };
+  Double_t red[NRGBs]   ={ 0.00, 0.10, 0.30, 0.90, 1.00, 1.00, 1.00 };
+  Double_t green[NRGBs] ={ 0.50, 0.75, 1.00, 0.90, 0.55, 0.00, 0.00 };
+  Double_t blue[NRGBs]  ={ 1.00, 0.20, 0.00, 0.00, 0.00, 0.00, 0.00 };  
+  if(shift){
+      for(int i=0; i<NRGBs; i++){
+        red  [i] -= 0.10;
+        green[i] -= 0.10;
+        blue [i] -= 0.10;
+      }
+    }
+    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+    gStyle->SetNumberContours(NCont);
+}
+
+
 void setColZGradient_TwoColors() {
     const Int_t NRGBs = 2;
     const Int_t NCont = 255;
@@ -47,7 +70,8 @@ void makeContourfL1fa2(TString dir="fa2phaseAdap", TString input="ttH_4l_scan", 
   gROOT->ProcessLine(".x tdrstyle.cc");
   gStyle->SetOptStat(0);
 //  gStyle->SetPalette(1);
-setColZGradient_OneColor(5);
+//setColZGradient_OneColor(5);
+setColZGrad_Onecolor_mod();
 //setColZGradient_TwoColors();
 //setColZGradient_Rainbow2_Compact();
 //gStyle->SetPalette(75);
@@ -73,7 +97,7 @@ float xhigh = x2+(x2-x1)/2./nbin;
 float ylow = y1-(y2-y1)/2./nbin;
 float yhigh =y2+(y2-y1)/2./nbin;
 
-TH2F *gr0 =new TH2F("h","",nbin+1,xlow,xhigh,nbin+1,ylow,yhigh);
+TH2F *gr0 =new TH2F("h","",nbin+1,x1+0.5,x2,nbin+1,y1,y2-.3);
 
 float deltaNLL;
 float CMS_zz4l_fg4;
@@ -147,6 +171,8 @@ if(gr0->GetBinContent(binn)!=0){
 		else
 			deltaNLL-=lowest;
 double content = (deltaNLL)*2;  
+
+//double content = TMath::Log((deltaNLL)*2);
 		ttmp->Fill();
 gr0->Fill(CMS_zz4l_fg4,CMS_zz4l_fg4phi,content);
 fg4pre = CMS_zz4l_fg4;
@@ -230,21 +256,22 @@ ttmp->Write();
 
   //c->cd();
 	//lscan->Draw("colz");
-						TGraph *gr2= new TGraph(1);
-						int point=0;
-						for (int k1=0;k1<gr0->GetNbinsX();k1++){
-							for (int k2=0;k2<gr0->GetNbinsY();k2++){
-//									if( fabs(fabs(gr0->GetXaxis()->GetBinCenter(k1+1)) + fabs(gr0->GetYaxis()->GetBinCenter(k2+1)) -1)<-0.01  ){
-									if( gr0->GetBinContent(k1+1,k2+1)!=0&& ( (gr0->GetBinContent(k1+1,k2+1)>gr0->GetBinContent(k1+1,k2+2) && gr0->GetBinContent(k1+1,k2+1)>gr0->GetBinContent(k1+1,k2) )||(gr0->GetBinContent(k1+1,k2+1)>gr0->GetBinContent(k1,k2+1) && gr0->GetBinContent(k1+1,k2+1)>gr0->GetBinContent(k1+2,k2+1)))){
-								//		if(!condit)
-								gr0->SetBinContent(k1+1,k2+1,(gr0->GetBinContent(k1+2,k2+1)+gr0->GetBinContent(k1,k2+1))/2.);
-								//cout<< k1+1<<"\t"<< k2+1<<endl;
+						
+  TGraph *gr2= new TGraph(1);
+  int point=0;
+  for (int k1=0;k1<gr0->GetNbinsX();k1++){
+	for (int k2=0;k2<gr0->GetNbinsY();k2++){
+//		if( fabs(fabs(gr0->GetXaxis()->GetBinCenter(k1+1)) + fabs(gr0->GetYaxis()->GetBinCenter(k2+1)) -1)<-0.01  ){
+		if( gr0->GetBinContent(k1+1,k2+1)!=0&& ( (gr0->GetBinContent(k1+1,k2+1)>gr0->GetBinContent(k1+1,k2+2) && gr0->GetBinContent(k1+1,k2+1)>gr0->GetBinContent(k1+1,k2) )||(gr0->GetBinContent(k1+1,k2+1)>gr0->GetBinContent(k1,k2+1) && gr0->GetBinContent(k1+1,k2+1)>gr0->GetBinContent(k1+2,k2+1)))){
+	//		if(!condit)
+			gr0->SetBinContent(k1+1,k2+1,(gr0->GetBinContent(k1+2,k2+1)+gr0->GetBinContent(k1,k2+1))/2.);
+	//		cout<< k1+1<<"\t"<< k2+1<<endl;
 	//									;
-	//						gr2->SetPoint( point,gr0->GetXaxis()->GetBinCenter(k1+1), gr0->GetYaxis()->GetBinCenter(k2+1));
-							point ++;
-									}
-							}
-						}
+	//		gr2->SetPoint( point,gr0->GetXaxis()->GetBinCenter(k1+1), gr0->GetYaxis()->GetBinCenter(k2+1));
+			point ++;
+			}
+		}
+	}
 //						gr2->Draw("same");
 	gr0->SetMaximum(gr0->GetMaximum());
 //	gr0->SetMaximum(15);
@@ -258,17 +285,17 @@ ttmp->Write();
 	//tlFF95->Draw("same");
 	if(!color){
   TLine *l2=new TLine();
-    l2->SetLineWidth(1);
-    l2->SetLineStyle(2);
-		if(fabs(y1-1)<0.1){
-   l2->DrawLine(-1,0.,0.,1);
-   l2->DrawLine(0.,1.,1,0.);
-   l2->DrawLine(1,0.,0.,-1);
-   l2->DrawLine(0.,-1.,-1.,0.);
-  TLine *line5=new TLine();
-    line5->SetLineStyle(2);
-    line5 ->DrawLine(-1,0,1,0);
-      line5 ->DrawLine(0,-1,0,1);
+   l2->SetLineWidth(1);
+   l2->SetLineStyle(2);
+   if(fabs(y1-1)<0.1){
+   	l2->DrawLine(-1,0.,0.,1);
+   	l2->DrawLine(0.,1.,1,0.);
+   	l2->DrawLine(1,0.,0.,-1);
+   	l2->DrawLine(0.,-1.,-1.,0.);
+  	TLine *line5=new TLine();
+    	line5->SetLineStyle(2);
+    	line5 ->DrawLine(-1,0,1,0);
+      	line5 ->DrawLine(0,-1,0,1);
 		}
 		else if(fabs(y1-0)<0.1){
   TLine *line5=new TLine();
@@ -381,10 +408,11 @@ pt2->Draw();
 						pt3->SetTextSize(0.04);
 
 
-if(input.Contains("onshell"))
+//if(input.Contains("onshell"))
 	TText* text = pt3->AddText(0.01,0.3,"#font[42]{105 GeV < m_{4l}< 140 GeV}");
-	else
-	TText* text = pt3->AddText(0.01,0.3,"#font[42]{105 GeV < m_{4l}< 1600 GeV}");
+//	else
+
+//	TText* text = pt3->AddText(0.01,0.3,"#font[42]{105 GeV < m_{4l}< 1600 GeV}");
 	pt3->Draw();
 
 	//if(xlow<-1)
@@ -392,7 +420,8 @@ if(input.Contains("onshell"))
 
 		  c->SaveAs(dir+"/"+output+".root");
 		  c->SaveAs(dir+"/"+output+".pdf");
-		  c->SaveAs(dir+"/"+output+".png");
+//		  c->SaveAs(dir+"/"+output+".png");
+		  c->SaveAs("~/www/mass_width/"+output+".png");
 		  c->SaveAs(dir+"/"+output+".eps");
 		  c->SaveAs(dir+"/"+output+".C");
     
