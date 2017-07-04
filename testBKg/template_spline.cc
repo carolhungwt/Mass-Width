@@ -14,6 +14,8 @@ void template_spline(){
 
 //************* Collection of coeff list **********************************
 
+	RooRealVar* r = (RooRealVar*) ws->var("r");
+	r->setRange(0.,200.);
 
 //		coeff_list[i] = extract_coeff(ws, ch_list[i]);
          RooArgList form_list;
@@ -35,14 +37,16 @@ void template_spline(){
 
 //************** Collect pdf_list as RooArgList ****************************
 //		pdf_list[i] = prod_pdf(ws, hist_input, ch_list[i], i);	
-        TFile f_hist(hist_input);
-        vector<TH2F*> th2fs(3);
-        th2fs[0] = (TH2F*) f_hist.Get("hist_2d_mreco_dbkgkin_r0");
-        th2fs[1] = (TH2F*) f_hist.Get("hist_2d_mreco_dbkgkin_r1");
-        th2fs[2] = (TH2F*) f_hist.Get("hist_2d_mreco_dbkgkin_r2");
-
+        TFile f_hist(hist_input+ch_list[i]+".root");
+//        vector<TH2F*> th2fs(3);
+        th2fs[i][0] = (TH2F*) f_hist.Get("hist_2d_mreco_dbkgkin_r0");
+        th2fs[i][1] = (TH2F*) f_hist.Get("hist_2d_mreco_dbkgkin_r1");
+        th2fs[i][2] = (TH2F*) f_hist.Get("hist_2d_mreco_dbkgkin_r2");
+TCanvas *c = new TCanvas("","");
         RooRealVar mreco("mreco", "mreco", 105., 140.);
-        RooRealVar dbkg("DBkgKin", "DBkgKin", 0.,1.);
+	mreco.setBins(35);
+        RooRealVar dbkg("dbkg_kin", "DBkgKin", 0.,1.);
+	dbkg.setBins(10);
         spline_template[i] = extract_splines(ws, ch_list[i]);
         int sp_size = spline_template[i].size();
         vector<RooDataHist*> datahists;
@@ -50,32 +54,44 @@ void template_spline(){
         vector<RooHistPdf*> histpdfs;
         RooHistPdf* histpdf_temp;
         RooArgSet argset(mreco, dbkg);  
-        cout<< th2fs.size()<<endl;
-        cout<<th2fs[0]->Integral()<<endl;
+        cout<< th2fs[i].size()<<endl;
+        cout<<th2fs[i][0]->Integral()<<endl;
 
         for(int j=0; j<sp_size; j++){
                 cout<<"j: "<<j<<endl;
-/*              TCanvas *c = new TCanvas("","");
- *                              th2fs[j]->Draw("colz");
- *                                              c->SaveAs("~/www/check_th2fs.png");
- *                                              */              datahist_temp = new RooDataHist("datahist","",argset, th2fs[j]);    
+		
+		th2fs[i][j]->Draw("colz");
+		c->SaveAs(Form("~/www/170627_check_th2f_r%d_before_datahist.png",j));
+
+
+                datahist_temp = new RooDataHist(Form("datahist_r%d_%s",j,(ch_list[i]).c_str()),"",argset, th2fs[i][j]);    
                 datahists.push_back(datahist_temp);
                 histpdf_temp = new RooHistPdf("histpdf", "", argset, *datahists[j]);
+		histpdf_temp->SetNameTitle(Form("r%d_template_%s",j,(ch_list[i]).c_str()),Form("r%d_template_%s",j,(ch_list[i]).c_str()));
+
                 histpdfs.push_back(histpdf_temp);
+	
+		
+		datahist_temp = (RooDataHist*) histpdf_temp->generateBinned(argset,100000);
+//                TH2* th2temp = (TH2*) datahist_temp->createHistogram("mreco,dbkg_kin",33,10);
+		datahist_temp->Draw("colz");
+                c->SaveAs(Form("~/www/170702_check_th2f_r%d_%s_after_datahist.png",j,(ch_list[i]).c_str()));
+
+
         }   
 
-        RooArgList prods;
+//        RooArgList prods;
         RooProdPdf* prod_temp;
-        if(sp_size==th2fs.size()){
+        if(sp_size==th2fs[i].size()){
                 for(int j=0; j<sp_size; j++){
                         prod_temp = new RooProdPdf(Form("prodPdf_%s_r%d", (ch_list[i]).c_str(), j),Form("prodPdf_%s_r%d", (ch_list[i]).c_str(), j), *(spline_template[i][j]), Conditional(*(histpdfs[j]),dbkg));
-                        prods.add(*prod_temp);
+                        prods[i].add(*prod_temp);
                 }
         }
-        else cout<< "Error between the dimension of the two pdf vectors         sp_size: "<<sp_size<<"   th2fs.sizei: "<<th2fs.size()<<endl;
+        else cout<< "Error between the dimension of the two pdf vectors         sp_size: "<<sp_size<<"   th2fs[i].size: "<<th2fs[i].size()<<endl;
 
 //	prods.Print();
-	pdf_list.push_back(prods);
+	pdf_list.push_back(prods[i]);
 //	pdf_list[i]=*prods;
 //**************** Ending pdf_list collection **********************
 
@@ -85,7 +101,7 @@ void template_spline(){
 	        RooFormulaVar *ggH_norm = new RooFormulaVar("ggH_norm","ggH_norm","@0+@1+@2",coeff_list[i]);
 		
 //	return;
-		TFile *f= new TFile(Form("%s_dbkgkin_mreco_WS.root",(ch_list[i]).c_str()), "recreate");
+		TFile *f= new TFile(Form("%s_2d_spline_WS.root",(ch_list[i]).c_str()), "recreate");
 		f->cd();
 		RooWorkspace* newWS = new RooWorkspace("w", "");
         	newWS->addClassDeclImportDir("../interface/");

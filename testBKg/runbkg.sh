@@ -1,6 +1,6 @@
-for chan in 4e #2e2mu 4mu 4e #4mu
+for chan in 4mu 4e 2e2mu #4mu
 	do
-	for cate in 4 #2 0 1 
+	for cate in 0 #4 #2 0 1 
 		do
 		for highmass in 0 #0 1 2
 			do
